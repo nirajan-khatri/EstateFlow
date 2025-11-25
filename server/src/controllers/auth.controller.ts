@@ -94,3 +94,15 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         next(error);
     }
 };
+
+export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const employees = await prisma.user.findMany({
+            where: { role: 'EMPLOYEE' },
+            select: { id: true, name: true, email: true }
+        });
+        res.json(employees);
+    } catch (error) {
+        next(error);
+    }
+};

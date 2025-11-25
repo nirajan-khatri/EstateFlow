@@ -72,4 +72,8 @@ export class AuthService {
     const user = this.currentUserSubject.value;
     return user ? user.role === role : false;
   }
+
+  getEmployees(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/employees`);
+  }
 }

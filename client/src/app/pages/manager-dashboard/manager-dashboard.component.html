@@ -1,0 +1,58 @@
+<div class="manager-dashboard-container">
+    <nz-card nzTitle="Issue Management Dashboard" [nzExtra]="extraTemplate">
+        <div class="filters">
+            <nz-select [(ngModel)]="statusFilter" (ngModelChange)="filterIssues()"
+                style="width: 200px; margin-right: 16px;" nzPlaceHolder="Filter by Status">
+                <nz-option nzValue="ALL" nzLabel="All Statuses"></nz-option>
+                <nz-option *ngFor="let s of statuses" [nzValue]="s" [nzLabel]="s"></nz-option>
+            </nz-select>
+
+            <nz-select [(ngModel)]="priorityFilter" (ngModelChange)="filterIssues()" style="width: 200px;"
+                nzPlaceHolder="Filter by Priority">
+                <nz-option nzValue="ALL" nzLabel="All Priorities"></nz-option>
+                <nz-option *ngFor="let p of priorities" [nzValue]="p" [nzLabel]="p"></nz-option>
+            </nz-select>
+        </div>
+
+        <nz-table #basicTable [nzData]="filteredIssues" [nzLoading]="loading">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Reporter</th>
+                    <th>Assignee</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let data of basicTable.data">
+                    <td>{{ data.title }}</td>
+                    <td>{{ data.reporterId }}</td>
+                    <!-- Ideally show name, need to update Issue interface to include relations -->
+                    <td>{{ data.assigneeId || 'Unassigned' }}</td>
+                    <td>
+                        <nz-tag [nzColor]="getPriorityColor(data.priority)">{{ data.priority }}</nz-tag>
+                    </td>
+                    <td>
+                        <nz-tag [nzColor]="getStatusColor(data.status)">{{ data.status }}</nz-tag>
+                    </td>
+                    <td>{{ data.createdAt | date:'short' }}</td>
+                    <td>
+                        <a nz-button nzType="link" (click)="openDrawer(data)">Manage</a>
+                    </td>
+                </tr>
+            </tbody>
+        </nz-table>
+    </nz-card>
+    <ng-template #extraTemplate>
+        <button nz-button nzType="default" (click)="loadIssues()">
+            <span nz-icon nzType="reload"></span>
+            Refresh
+        </button>
+    </ng-template>
+
+    <app-issue-details-drawer [visible]="drawerVisible" [issue]="selectedIssue" [employees]="employees"
+        (close)="closeDrawer()" (issueUpdated)="onIssueUpdated($event)"></app-issue-details-drawer>
+</div>
