@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthService } from '../../services/auth.service';
@@ -19,7 +20,8 @@ import { AuthService } from '../../services/auth.service';
     NzFormModule,
     NzInputModule,
     NzButtonModule,
-    NzCardModule
+    NzCardModule,
+    NzCheckboxModule
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
@@ -36,7 +38,8 @@ export class LoginComponent {
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]]
+      password: ['', [Validators.required]],
+      remember: [false]
     });
   }
 
