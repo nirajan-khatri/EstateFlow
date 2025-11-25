@@ -1,15 +1,12 @@
 import { Router } from 'express';
+import { register, login } from '../controllers/auth.controller';
 
 const router = Router();
 
 // POST /api/auth/register
-router.post('/register', (req, res) => {
-    res.status(501).json({ message: 'Not implemented yet' });
-});
+router.post('/register', register);
 
 // POST /api/auth/login
-router.post('/login', (req, res) => {
-    res.status(501).json({ message: 'Not implemented yet' });
-});
+router.post('/login', login);
 
 export default router;

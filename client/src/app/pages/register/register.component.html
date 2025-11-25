@@ -1,0 +1,42 @@
+<div class="register-container">
+    <nz-card style="width: 400px;" [nzBordered]="false" nzTitle="Register New Account">
+        <form nz-form [formGroup]="registerForm" (ngSubmit)="submitForm()">
+            <nz-form-item>
+                <nz-form-control nzErrorTip="Please input your name!">
+                    <nz-input-group nzPrefixIcon="user">
+                        <input type="text" nz-input formControlName="name" placeholder="Full Name" />
+                    </nz-input-group>
+                </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+                <nz-form-control nzErrorTip="Please input your email!">
+                    <nz-input-group nzPrefixIcon="mail">
+                        <input type="email" nz-input formControlName="email" placeholder="Email" />
+                    </nz-input-group>
+                </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+                <nz-form-control nzErrorTip="Please input your Password (min 6 chars)!">
+                    <nz-input-group nzPrefixIcon="lock">
+                        <input type="password" nz-input formControlName="password" placeholder="Password" />
+                    </nz-input-group>
+                </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+                <nz-form-control nzErrorTip="Please select a role!">
+                    <nz-select formControlName="role" nzPlaceHolder="Select Role">
+                        <nz-option nzValue="EMPLOYEE" nzLabel="Employee"></nz-option>
+                        <nz-option nzValue="MANAGER" nzLabel="Manager"></nz-option>
+                    </nz-select>
+                </nz-form-control>
+            </nz-form-item>
+
+            <button nz-button class="register-form-button login-form-margin" [nzType]="'primary'"
+                [nzLoading]="isLoading">Register</button>
+            Or <a routerLink="/login">login now!</a>
+        </form>
+    </nz-card>
+</div>

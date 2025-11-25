@@ -17,26 +17,26 @@ model User {
   name      String
   role      Role     @default(EMPLOYEE)
   createdAt DateTime @default(now())
-  
+
   reportedIssues Issue[] @relation("ReportedIssues")
   assignedIssues Issue[] @relation("AssignedIssues")
 }
 
 model Issue {
-  id          String       @id @default(uuid())
+  id          String      @id @default(uuid())
   title       String
   description String
-  priority    Priority     @default(MEDIUM)
-  status      IssueStatus  @default(OPEN)
+  priority    Priority    @default(MEDIUM)
+  status      IssueStatus @default(OPEN)
   imageUrl    String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  
-  reporterId  String
-  reporter    User         @relation("ReportedIssues", fields: [reporterId], references: [id])
-  
-  assigneeId  String?
-  assignee    User?        @relation("AssignedIssues", fields: [assigneeId], references: [id])
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  reporterId String
+  reporter   User   @relation("ReportedIssues", fields: [reporterId], references: [id])
+
+  assigneeId String?
+  assignee   User?   @relation("AssignedIssues", fields: [assigneeId], references: [id])
 }
 
 enum Role {

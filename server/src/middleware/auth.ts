@@ -1,20 +1,56 @@
 import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 
-// Placeholder for JWT authentication middleware
-// Will be implemented in Day 3
+interface JwtPayload {
+    userId: string;
+    role: string;
+}
+
+declare global {
+    namespace Express {
+        interface Request {
+            user?: JwtPayload;
+        }
+    }
+}
+
 export const authenticate = (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
-    // TODO: Implement JWT verification
-    next();
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res.status(401).json({ message: 'No token provided' });
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    try {
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET || 'supersecretkey'
+        ) as JwtPayload;
+
+        req.user = decoded;
+        next();
+    } catch (error) {
+        return res.status(401).json({ message: 'Invalid token' });
+    }
 };
 
-// Placeholder for role-based authorization
+// Role-based authorization
 export const authorize = (...roles: string[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
-        // TODO: Implement role checking
+        if (!req.user) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
+        }
+
         next();
     };
 };
