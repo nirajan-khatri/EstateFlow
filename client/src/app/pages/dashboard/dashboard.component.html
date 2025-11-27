@@ -1,1 +1,51 @@
-<p>dashboard works!</p>
+<div class="dashboard-container" *ngIf="stats">
+    <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="24">
+            <nz-card>
+                <nz-statistic [nzValue]="stats.totalIssues" [nzTitle]="'Total Issues'"></nz-statistic>
+            </nz-card>
+        </div>
+    </div>
+
+    <!-- Charts temporarily disabled due to build issues -->
+    <!--
+  <div nz-row [nzGutter]="16" class="charts-row">
+    ...
+  </div>
+  -->
+
+    <div nz-row [nzGutter]="16" class="recent-activity-row">
+        <div nz-col [nzSpan]="24">
+            <nz-card nzTitle="Recent Activity">
+                <nz-table #basicTable [nzData]="stats.recentIssues" [nzShowPagination]="false">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Reporter</th>
+                            <th>Assignee</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let data of basicTable.data">
+                            <td>{{ data.title }}</td>
+                            <td>{{ data.reporter?.name || 'Unknown' }}</td>
+                            <td>{{ data.assignee?.name || 'Unassigned' }}</td>
+                            <td>
+                                <nz-tag [nzColor]="getPriorityColor(data.priority)">{{ data.priority }}</nz-tag>
+                            </td>
+                            <td>{{ data.status }}</td>
+                            <td>{{ data.createdAt | date:'short' }}</td>
+                        </tr>
+                    </tbody>
+                </nz-table>
+            </nz-card>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="loading" class="loading-container">
+    <p>Loading dashboard...</p>
+</div>

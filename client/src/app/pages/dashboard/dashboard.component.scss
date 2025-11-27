@@ -1,0 +1,28 @@
+.dashboard-container {
+    padding: 24px;
+    background-color: #f0f2f5;
+    min-height: 100vh;
+}
+
+.charts-row {
+    margin-top: 24px;
+}
+
+.recent-activity-row {
+    margin-top: 24px;
+}
+
+.chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 18px;
+}

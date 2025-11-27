@@ -1,10 +1,10 @@
 import { Router } from 'express';
+import { authenticate } from '../middleware/auth';
+import { getDashboardStats } from '../controllers/dashboard.controller';
 
 const router = Router();
 
-// GET /api/dashboard/stats - Get dashboard statistics
-router.get('/stats', (req, res) => {
-    res.status(501).json({ message: 'Not implemented yet' });
-});
+// GET /api/dashboard/stats
+router.get('/stats', authenticate, getDashboardStats);
 
 export default router;
