@@ -24,16 +24,18 @@ build/
 *~
 .DS_Store
 
-# Logs
+# Logs & Debugging
 logs/
 *.log
+server_log*.txt
+build_log*.txt
 
 # Testing
 coverage/
 .nyc_output/
 
 # Prisma
-prisma/migrations/
+# prisma/migrations/ # Keep migrations in version control
 
 # Uploads (keep folder structure, ignore content)
 uploads/*

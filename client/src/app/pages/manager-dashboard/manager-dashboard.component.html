@@ -14,7 +14,7 @@
             </nz-select>
         </div>
 
-        <nz-table #basicTable [nzData]="filteredIssues" [nzLoading]="loading">
+        <nz-table #basicTable [nzData]="filteredIssues" [nzLoading]="loading" [nzNoResult]="noResultTemplate">
             <thead>
                 <tr>
                     <th>Title</th>
@@ -51,6 +51,14 @@
             <span nz-icon nzType="reload"></span>
             Refresh
         </button>
+    </ng-template>
+
+    <ng-template #noResultTemplate>
+        <nz-empty nzNotFoundImage="simple" [nzNotFoundContent]="contentTpl">
+            <ng-template #contentTpl>
+                <span>No issues found matching filters</span>
+            </ng-template>
+        </nz-empty>
     </ng-template>
 
     <app-issue-details-drawer [visible]="drawerVisible" [issue]="selectedIssue" [employees]="employees"

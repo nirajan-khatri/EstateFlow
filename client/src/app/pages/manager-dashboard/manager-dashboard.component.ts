@@ -9,6 +9,7 @@ import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { IssueService } from '../../services/issue.service';
 import { AuthService, User } from '../../services/auth.service';
 import { Issue, Priority, IssueStatus } from '../../models/issue.model';
@@ -27,6 +28,7 @@ import { IssueDetailsDrawerComponent } from '../../components/issue-details-draw
     NzCardModule,
     NzSelectModule,
     NzDrawerModule,
+    NzEmptyModule,
     IssueDetailsDrawerComponent
   ],
   templateUrl: './manager-dashboard.component.html',

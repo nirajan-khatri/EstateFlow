@@ -1,6 +1,6 @@
 <div class="issue-list-container">
     <nz-card nzTitle="My Reported Issues" [nzExtra]="extraTemplate">
-        <nz-table #basicTable [nzData]="issues" [nzLoading]="loading">
+        <nz-table #basicTable [nzData]="issues" [nzLoading]="loading" [nzNoResult]="noResultTemplate">
             <thead>
                 <tr>
                     <th>Title</th>
@@ -32,5 +32,16 @@
             <span nz-icon nzType="plus"></span>
             Report Issue
         </button>
+    </ng-template>
+
+    <ng-template #noResultTemplate>
+        <nz-empty nzNotFoundImage="simple" [nzNotFoundContent]="contentTpl" [nzNotFoundFooter]="footerTpl">
+            <ng-template #contentTpl>
+                <span>No issues found</span>
+            </ng-template>
+            <ng-template #footerTpl>
+                <button nz-button nzType="primary" routerLink="/issues/create">Report Issue</button>
+            </ng-template>
+        </nz-empty>
     </ng-template>
 </div>

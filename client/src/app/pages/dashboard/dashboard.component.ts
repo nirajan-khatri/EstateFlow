@@ -1,20 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-// import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { DashboardService, DashboardStats } from '../../services/dashboard.service';
-import { Priority } from '../../models/issue.model';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
     CommonModule,
-    // NgxChartsModule,
+    BaseChartDirective,
     NzCardModule,
     NzStatisticModule,
     NzGridModule,
@@ -28,21 +28,27 @@ export class DashboardComponent implements OnInit {
   stats: DashboardStats | null = null;
   loading = true;
 
-  // Chart options
-  /*
-  view: [number, number] = [700, 300];
-  gradient = false;
-  showLegend = true;
-  showXAxis = true;
-  showYAxis = true;
-  showXAxisLabel = true;
-  showYAxisLabel = true;
-  xAxisLabel = 'Status';
-  yAxisLabel = 'Count';
-  colorScheme = {
-    domain: ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA']
+  // Bar Chart (Status)
+  public barChartData: ChartConfiguration<'bar'>['data'] = {
+    labels: [],
+    datasets: [
+      { data: [], label: 'Issues' }
+    ]
   };
-  */
+  public barChartOptions: ChartOptions<'bar'> = {
+    responsive: true,
+  };
+
+  // Pie Chart (Priority)
+  public pieChartData: ChartConfiguration<'pie'>['data'] = {
+    labels: [],
+    datasets: [
+      { data: [] }
+    ]
+  };
+  public pieChartOptions: ChartOptions<'pie'> = {
+    responsive: true,
+  };
 
   constructor(private dashboardService: DashboardService) { }
 
@@ -55,6 +61,7 @@ export class DashboardComponent implements OnInit {
     this.dashboardService.getStats().subscribe({
       next: (data) => {
         this.stats = data;
+        this.updateCharts(data);
         this.loading = false;
       },
       error: (err) => {
@@ -62,6 +69,24 @@ export class DashboardComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  updateCharts(data: DashboardStats): void {
+    // Update Bar Chart
+    this.barChartData = {
+      labels: data.statusCounts.map(s => s.name),
+      datasets: [
+        { data: data.statusCounts.map(s => s.value), label: 'Issues' }
+      ]
+    };
+
+    // Update Pie Chart
+    this.pieChartData = {
+      labels: data.priorityCounts.map(p => p.name),
+      datasets: [
+        { data: data.priorityCounts.map(p => p.value) }
+      ]
+    };
   }
 
   getPriorityColor(priority: string): string {

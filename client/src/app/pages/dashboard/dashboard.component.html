@@ -7,12 +7,24 @@
         </div>
     </div>
 
-    <!-- Charts temporarily disabled due to build issues -->
-    <!--
-  <div nz-row [nzGutter]="16" class="charts-row">
-    ...
-  </div>
-  -->
+    <div nz-row [nzGutter]="16" class="charts-row">
+        <div nz-col [nzSpan]="12">
+            <nz-card nzTitle="Issues by Status">
+                <div class="chart-container">
+                    <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'">
+                    </canvas>
+                </div>
+            </nz-card>
+        </div>
+        <div nz-col [nzSpan]="12">
+            <nz-card nzTitle="Issues by Priority">
+                <div class="chart-container">
+                    <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="'pie'">
+                    </canvas>
+                </div>
+            </nz-card>
+        </div>
+    </div>
 
     <div nz-row [nzGutter]="16" class="recent-activity-row">
         <div nz-col [nzSpan]="24">
