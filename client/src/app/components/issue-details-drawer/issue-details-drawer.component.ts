@@ -8,9 +8,11 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzImageModule } from 'ng-zorro-antd/image';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { Issue, IssueStatus, Priority } from '../../models/issue.model';
 import { User } from '../../services/auth.service';
 import { IssueService } from '../../services/issue.service';
+import { CommentListComponent } from '../comment-list/comment-list.component';
 
 @Component({
   selector: 'app-issue-details-drawer',
@@ -23,7 +25,9 @@ import { IssueService } from '../../services/issue.service';
     NzSelectModule,
     NzButtonModule,
     NzTagModule,
-    NzImageModule
+    NzImageModule,
+    NzDividerModule,
+    CommentListComponent
   ],
   templateUrl: './issue-details-drawer.component.html',
   styleUrls: ['./issue-details-drawer.component.scss']

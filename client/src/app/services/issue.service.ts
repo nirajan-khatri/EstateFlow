@@ -40,7 +40,15 @@ export class IssueService {
     return this.http.patch<Issue>(`${this.apiUrl}/${issueId}/assign`, { assigneeId });
   }
 
-  updateStatus(issueId: string, status: string): Observable<Issue> {
-    return this.http.patch<Issue>(`${this.apiUrl}/${issueId}/status`, { status });
+  updateStatus(id: string, status: any): Observable<Issue> {
+    return this.http.patch<Issue>(`${this.apiUrl}/${id}/status`, { status });
+  }
+
+  getComments(issueId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${issueId}/comments`);
+  }
+
+  addComment(issueId: string, content: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${issueId}/comments`, { content });
   }
 }
