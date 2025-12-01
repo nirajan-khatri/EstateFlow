@@ -14,14 +14,16 @@
                 <nz-descriptions-item nzTitle="Created At">
                     {{ issue.createdAt | date:'medium' }}
                 </nz-descriptions-item>
-                <nz-descriptions-item nzTitle="Images" *ngIf="issue.images && issue.images.length > 0">
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <img *ngFor="let img of issue.images" nz-image width="100px" height="100px"
-                            [nzSrc]="'http://localhost:3000' + img" alt="Issue Image"
-                            style="object-fit: cover; border-radius: 4px;" />
-                    </div>
-                </nz-descriptions-item>
             </nz-descriptions>
+
+            <div *ngIf="issue.images && issue.images.length > 0" class="image-container">
+                <h3>Attached Images</h3>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <img *ngFor="let img of issue.images" nz-image width="100px" height="100px"
+                        [nzSrc]="'http://localhost:3000' + img" alt="Issue Image"
+                        style="object-fit: cover; border-radius: 4px; cursor: pointer;" />
+                </div>
+            </div>
 
             <div class="actions-section" *ngIf="isManager">
                 <h3>Management Actions</h3>
@@ -47,14 +49,6 @@
                         <button nz-button nzType="primary" (click)="updateStatus()"
                             [nzLoading]="isLoading">Update</button>
                     </div>
-                </div>
-            </div>
-
-            <div *ngIf="issue.images && issue.images.length > 0" class="image-container">
-                <h3>Attached Images</h3>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <img *ngFor="let img of issue.images" nz-image width="150px" [nzSrc]="'http://localhost:3000' + img"
-                        alt="Issue Image" style="border-radius: 4px;" />
                 </div>
             </div>
 
