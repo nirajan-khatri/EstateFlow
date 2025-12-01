@@ -1,5 +1,46 @@
 <div class="manager-dashboard-container">
-    <nz-card nzTitle="Issue Management Dashboard" [nzExtra]="extraTemplate">
+    <!-- Analytics Section -->
+    <div class="analytics-section" *ngIf="stats" style="margin-bottom: 24px;">
+        <div class="dashboard-header"
+            style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+            <h2>Manager Dashboard</h2>
+            <div class="dashboard-controls">
+                <nz-range-picker [(ngModel)]="dateRange" (ngModelChange)="onDateChange($event)"
+                    style="margin-right: 16px;"></nz-range-picker>
+                <button nz-button nzType="primary" (click)="exportToCSV()">Export CSV</button>
+            </div>
+        </div>
+
+        <div nz-row [nzGutter]="16" style="margin-bottom: 16px;">
+            <div nz-col [nzSpan]="24">
+                <nz-card>
+                    <nz-statistic [nzValue]="stats.totalIssues" [nzTitle]="'Total Issues'"></nz-statistic>
+                </nz-card>
+            </div>
+        </div>
+
+        <div nz-row [nzGutter]="16" class="charts-row">
+            <div nz-col [nzSpan]="12">
+                <nz-card nzTitle="Issues by Status">
+                    <div class="chart-container">
+                        <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'">
+                        </canvas>
+                    </div>
+                </nz-card>
+            </div>
+            <div nz-col [nzSpan]="12">
+                <nz-card nzTitle="Issues by Priority">
+                    <div class="chart-container">
+                        <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="'pie'">
+                        </canvas>
+                    </div>
+                </nz-card>
+            </div>
+        </div>
+    </div>
+
+    <!-- Issue Management Section -->
+    <nz-card nzTitle="Issue Management" [nzExtra]="extraTemplate">
         <div class="filters">
             <nz-select [(ngModel)]="statusFilter" (ngModelChange)="filterIssues()"
                 style="width: 200px; margin-right: 16px;" nzPlaceHolder="Filter by Status">
@@ -49,7 +90,7 @@
     <ng-template #extraTemplate>
         <button nz-button nzType="default" (click)="loadIssues()">
             <span nz-icon nzType="reload"></span>
-            Refresh
+            Refresh List
         </button>
     </ng-template>
 

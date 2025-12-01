@@ -9,13 +9,10 @@
             </div>
 
             <ul nz-menu nzMode="horizontal" class="nav-menu">
-                <li nz-menu-item routerLink="/dashboard" nzMatchRouter *ngIf="user.role === 'EMPLOYEE'">
-                    <span nz-icon nzType="dashboard"></span> Dashboard
-                </li>
                 <li nz-menu-item routerLink="/issues" nzMatchRouter *ngIf="user.role === 'EMPLOYEE'">
                     <span nz-icon nzType="unordered-list"></span> My Issues
                 </li>
-                <li nz-menu-item routerLink="/manager" nzMatchRouter *ngIf="user.role === 'MANAGER'">
+                <li nz-menu-item routerLink="/dashboard" nzMatchRouter *ngIf="user.role === 'MANAGER'">
                     <span nz-icon nzType="control"></span> Manager Dashboard
                 </li>
             </ul>

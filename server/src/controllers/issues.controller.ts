@@ -34,6 +34,8 @@ export const createIssue = async (req: Request, res: Response, next: NextFunctio
             }
         });
 
+        io.emit('issue:created', issue);
+
         res.status(201).json(issue);
     } catch (error) {
         next(error);

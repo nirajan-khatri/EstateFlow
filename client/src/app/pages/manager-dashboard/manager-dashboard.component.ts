@@ -10,8 +10,15 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
+import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { IssueService } from '../../services/issue.service';
 import { AuthService, User } from '../../services/auth.service';
+import { DashboardService, DashboardStats } from '../../services/dashboard.service';
+import { SocketService } from '../../services/socket.service';
 import { Issue, Priority, IssueStatus } from '../../models/issue.model';
 import { IssueDetailsDrawerComponent } from '../../components/issue-details-drawer/issue-details-drawer.component';
 
@@ -29,6 +36,10 @@ import { IssueDetailsDrawerComponent } from '../../components/issue-details-draw
     NzSelectModule,
     NzDrawerModule,
     NzEmptyModule,
+    NzStatisticModule,
+    NzGridModule,
+    NzDatePickerModule,
+    BaseChartDirective,
     IssueDetailsDrawerComponent
   ],
   templateUrl: './manager-dashboard.component.html',
@@ -39,6 +50,32 @@ export class ManagerDashboardComponent implements OnInit {
   filteredIssues: Issue[] = [];
   loading = true;
   employees: User[] = [];
+
+  // Analytics Data
+  stats: DashboardStats | null = null;
+  dateRange: Date[] = [];
+
+  // Bar Chart (Status)
+  public barChartData: ChartConfiguration<'bar'>['data'] = {
+    labels: [],
+    datasets: [
+      { data: [], label: 'Issues' }
+    ]
+  };
+  public barChartOptions: ChartOptions<'bar'> = {
+    responsive: true,
+  };
+
+  // Pie Chart (Priority)
+  public pieChartData: ChartConfiguration<'pie'>['data'] = {
+    labels: [],
+    datasets: [
+      { data: [] }
+    ]
+  };
+  public pieChartOptions: ChartOptions<'pie'> = {
+    responsive: true,
+  };
 
   // Filters
   statusFilter: IssueStatus | 'ALL' = 'ALL';
@@ -53,12 +90,106 @@ export class ManagerDashboardComponent implements OnInit {
   constructor(
     private issueService: IssueService,
     private authService: AuthService,
+    private dashboardService: DashboardService,
+    private socketService: SocketService,
     private message: NzMessageService
   ) { }
 
   ngOnInit(): void {
     this.loadIssues();
     this.loadEmployees();
+    this.loadStats();
+    this.setupRealtimeUpdates();
+  }
+
+  setupRealtimeUpdates(): void {
+    const events = ['issue:created', 'issue:assigned', 'issue:status_change'];
+    events.forEach(event => {
+      this.socketService.on(event).subscribe((data: any) => {
+        this.loadStats();
+        // Also reload issues list if needed, or update locally
+        if (event === 'issue:created') {
+          this.issues.unshift(data);
+          this.filterIssues();
+        } else {
+          this.loadIssues(); // Refresh list to be safe
+        }
+      });
+    });
+  }
+
+  loadStats(): void {
+    let startDate: string | undefined;
+    let endDate: string | undefined;
+
+    if (this.dateRange && this.dateRange.length === 2) {
+      startDate = this.dateRange[0].toISOString();
+      endDate = this.dateRange[1].toISOString();
+    }
+
+    this.dashboardService.getStats(startDate, endDate).subscribe({
+      next: (data) => {
+        this.stats = data;
+        this.updateCharts(data);
+      },
+      error: (err) => console.error('Failed to load stats', err)
+    });
+  }
+
+  updateCharts(data: DashboardStats): void {
+    // Update Bar Chart
+    this.barChartData = {
+      labels: data.statusCounts.map((s: { name: string; value: number }) => s.name),
+      datasets: [
+        { data: data.statusCounts.map((s: { name: string; value: number }) => s.value), label: 'Issues' }
+      ]
+    };
+
+    // Update Pie Chart
+    this.pieChartData = {
+      labels: data.priorityCounts.map((p: { name: string; value: number }) => p.name),
+      datasets: [
+        { data: data.priorityCounts.map((p: { name: string; value: number }) => p.value) }
+      ]
+    };
+  }
+
+  onDateChange(result: Date[]): void {
+    this.dateRange = result;
+    this.loadStats();
+  }
+
+  exportToCSV(): void {
+    if (!this.stats || !this.stats.recentIssues) return;
+
+    const issues = this.stats.recentIssues;
+    const headers = ['Title', 'Description', 'Priority', 'Status', 'Reporter', 'Assignee', 'Created At'];
+
+    const csvContent = [
+      headers.join(','),
+      ...issues.map((issue: any) => {
+        return [
+          `"${issue.title.replace(/"/g, '""')}"`,
+          `"${issue.description.replace(/"/g, '""')}"`,
+          issue.priority,
+          issue.status,
+          issue.reporter?.name || 'Unknown',
+          issue.assignee?.name || 'Unassigned',
+          new Date(issue.createdAt).toLocaleString()
+        ].join(',');
+      })
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `issues_report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   loadIssues(): void {

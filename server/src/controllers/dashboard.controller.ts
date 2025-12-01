@@ -5,12 +5,23 @@ const prisma = new PrismaClient();
 
 export const getDashboardStats = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const { startDate, endDate } = req.query;
+        const where: any = {};
+
+        if (startDate && endDate) {
+            where.createdAt = {
+                gte: new Date(startDate as string),
+                lte: new Date(endDate as string)
+            };
+        }
+
         // 1. Total Issues
-        const totalIssues = await prisma.issue.count();
+        const totalIssues = await prisma.issue.count({ where });
 
         // 2. Counts by Status
         const statusCounts = await prisma.issue.groupBy({
             by: ['status'],
+            where,
             _count: {
                 status: true
             }
@@ -19,6 +30,7 @@ export const getDashboardStats = async (req: Request, res: Response, next: NextF
         // 3. Counts by Priority
         const priorityCounts = await prisma.issue.groupBy({
             by: ['priority'],
+            where,
             _count: {
                 priority: true
             }
@@ -27,6 +39,7 @@ export const getDashboardStats = async (req: Request, res: Response, next: NextF
         // 4. Recent Issues (Last 5)
         const recentIssues = await prisma.issue.findMany({
             take: 5,
+            where,
             orderBy: {
                 createdAt: 'desc'
             },

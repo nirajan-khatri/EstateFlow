@@ -7,7 +7,11 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+import { FormsModule } from '@angular/forms';
 import { DashboardService, DashboardStats } from '../../services/dashboard.service';
+import { SocketService } from '../../services/socket.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,7 +23,10 @@ import { DashboardService, DashboardStats } from '../../services/dashboard.servi
     NzStatisticModule,
     NzGridModule,
     NzTableModule,
-    NzTagModule
+    NzTagModule,
+    NzButtonModule,
+    NzDatePickerModule,
+    FormsModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
@@ -27,6 +34,7 @@ import { DashboardService, DashboardStats } from '../../services/dashboard.servi
 export class DashboardComponent implements OnInit {
   stats: DashboardStats | null = null;
   loading = true;
+  dateRange: Date[] = [];
 
   // Bar Chart (Status)
   public barChartData: ChartConfiguration<'bar'>['data'] = {
@@ -50,15 +58,41 @@ export class DashboardComponent implements OnInit {
     responsive: true,
   };
 
-  constructor(private dashboardService: DashboardService) { }
+  constructor(
+    private dashboardService: DashboardService,
+    private socketService: SocketService
+  ) { }
 
   ngOnInit(): void {
+    this.loadStats();
+    this.setupRealtimeUpdates();
+  }
+
+  setupRealtimeUpdates(): void {
+    const events = ['issue:created', 'issue:assigned', 'issue:status_change'];
+    events.forEach(event => {
+      this.socketService.on(event).subscribe(() => {
+        this.loadStats();
+      });
+    });
+  }
+
+  onDateChange(result: Date[]): void {
+    this.dateRange = result;
     this.loadStats();
   }
 
   loadStats(): void {
     this.loading = true;
-    this.dashboardService.getStats().subscribe({
+    let startDate: string | undefined;
+    let endDate: string | undefined;
+
+    if (this.dateRange && this.dateRange.length === 2) {
+      startDate = this.dateRange[0].toISOString();
+      endDate = this.dateRange[1].toISOString();
+    }
+
+    this.dashboardService.getStats(startDate, endDate).subscribe({
       next: (data) => {
         this.stats = data;
         this.updateCharts(data);
@@ -74,17 +108,17 @@ export class DashboardComponent implements OnInit {
   updateCharts(data: DashboardStats): void {
     // Update Bar Chart
     this.barChartData = {
-      labels: data.statusCounts.map(s => s.name),
+      labels: data.statusCounts.map((s: { name: string; value: number }) => s.name),
       datasets: [
-        { data: data.statusCounts.map(s => s.value), label: 'Issues' }
+        { data: data.statusCounts.map((s: { name: string; value: number }) => s.value), label: 'Issues' }
       ]
     };
 
     // Update Pie Chart
     this.pieChartData = {
-      labels: data.priorityCounts.map(p => p.name),
+      labels: data.priorityCounts.map((p: { name: string; value: number }) => p.name),
       datasets: [
-        { data: data.priorityCounts.map(p => p.value) }
+        { data: data.priorityCounts.map((p: { name: string; value: number }) => p.value) }
       ]
     };
   }
@@ -97,5 +131,38 @@ export class DashboardComponent implements OnInit {
       case 'LOW': return 'green';
       default: return 'default';
     }
+  }
+
+  exportToCSV(): void {
+    if (!this.stats || !this.stats.recentIssues) return;
+
+    const issues = this.stats.recentIssues;
+    const headers = ['Title', 'Description', 'Priority', 'Status', 'Reporter', 'Assignee', 'Created At'];
+
+    const csvContent = [
+      headers.join(','),
+      ...issues.map((issue: any) => {
+        return [
+          `"${issue.title.replace(/"/g, '""')}"`,
+          `"${issue.description.replace(/"/g, '""')}"`,
+          issue.priority,
+          issue.status,
+          issue.reporter?.name || 'Unknown',
+          issue.assignee?.name || 'Unassigned',
+          new Date(issue.createdAt).toLocaleString()
+        ].join(',');
+      })
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `issues_report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 }

@@ -17,7 +17,11 @@ export class DashboardService {
 
   constructor(private http: HttpClient) { }
 
-  getStats(): Observable<DashboardStats> {
-    return this.http.get<DashboardStats>(`${this.apiUrl}/stats`);
+  getStats(startDate?: string, endDate?: string): Observable<DashboardStats> {
+    let params: any = {};
+    if (startDate && endDate) {
+      params = { startDate, endDate };
+    }
+    return this.http.get<DashboardStats>(`${this.apiUrl}/stats`, { params });
   }
 }

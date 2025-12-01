@@ -1,5 +1,26 @@
-.manager-dashboard-container {}
+.manager-dashboard-container {
+    padding: 24px;
+}
 
 .filters {
     margin-bottom: 16px;
+}
+
+.charts-row {
+    margin-top: 24px;
+}
+
+.chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 18px;
 }
