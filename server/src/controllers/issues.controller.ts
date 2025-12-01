@@ -22,7 +22,14 @@ export const createIssue = async (req: Request, res: Response, next: NextFunctio
                 priority: priority || 'MEDIUM',
                 status: 'OPEN',
                 images,
-                reporterId: userId
+                reporterId: userId,
+                auditLogs: {
+                    create: {
+                        action: 'CREATED',
+                        details: 'Issue reported',
+                        userId
+                    }
+                }
             }
         });
 
@@ -111,7 +118,16 @@ export const assignIssue = async (req: Request, res: Response, next: NextFunctio
 
         const issue = await prisma.issue.update({
             where: { id },
-            data: { assigneeId }
+            data: {
+                assigneeId,
+                auditLogs: {
+                    create: {
+                        action: 'ASSIGNED',
+                        details: `Assigned to user ${assigneeId}`,
+                        userId: req.user!.userId
+                    }
+                }
+            }
         });
 
         res.json(issue);
@@ -128,10 +144,37 @@ export const updateIssueStatus = async (req: Request, res: Response, next: NextF
 
         const issue = await prisma.issue.update({
             where: { id },
-            data: { status }
+            data: {
+                status,
+                auditLogs: {
+                    create: {
+                        action: 'STATUS_CHANGE',
+                        details: `Status updated to ${status}`,
+                        userId: req.user!.userId
+                    }
+                }
+            }
         });
 
         res.json(issue);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getIssueHistory = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        const logs = await prisma.auditLog.findMany({
+            where: { issueId: id },
+            include: {
+                user: {
+                    select: { name: true }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(logs);
     } catch (error) {
         next(error);
     }

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticate, authorize } from '../middleware/auth';
 import { upload } from '../middleware/upload';
-import { createIssue, getMyIssues, getIssueById, getAllIssues, assignIssue, updateIssueStatus } from '../controllers/issues.controller';
+import { createIssue, getMyIssues, getIssueById, getAllIssues, assignIssue, updateIssueStatus, getIssueHistory } from '../controllers/issues.controller';
 
 const router = Router();
 
@@ -19,6 +19,9 @@ router.get('/', getMyIssues);
 
 // GET /api/issues/:id - Get specific issue details
 router.get('/:id', getIssueById);
+
+// GET /api/issues/:id/history - Get issue history
+router.get('/:id/history', getIssueHistory);
 
 // PATCH /api/issues/:id/assign - Assign issue (Manager only)
 router.patch('/:id/assign', authorize('MANAGER'), assignIssue);
