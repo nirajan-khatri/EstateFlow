@@ -24,3 +24,13 @@ export interface Issue {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export interface AuditLog {
+    id: string;
+    action: string;
+    details: string;
+    createdAt: Date;
+    user: {
+        name: string;
+    };
+}

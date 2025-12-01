@@ -9,7 +9,8 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzImageModule } from 'ng-zorro-antd/image';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
-import { Issue, IssueStatus, Priority } from '../../models/issue.model';
+import { NzTimelineModule } from 'ng-zorro-antd/timeline';
+import { Issue, IssueStatus, Priority, AuditLog } from '../../models/issue.model';
 import { User } from '../../services/auth.service';
 import { IssueService } from '../../services/issue.service';
 import { CommentListComponent } from '../comment-list/comment-list.component';
@@ -27,6 +28,7 @@ import { CommentListComponent } from '../comment-list/comment-list.component';
     NzTagModule,
     NzImageModule,
     NzDividerModule,
+    NzTimelineModule,
     CommentListComponent
   ],
   templateUrl: './issue-details-drawer.component.html',
@@ -44,6 +46,7 @@ export class IssueDetailsDrawerComponent implements OnChanges {
   selectedStatus: IssueStatus | null = null;
   statuses = Object.values(IssueStatus);
   isLoading = false;
+  auditLogs: AuditLog[] = [];
 
   constructor(
     private issueService: IssueService,
@@ -54,7 +57,16 @@ export class IssueDetailsDrawerComponent implements OnChanges {
     if (changes['issue'] && this.issue) {
       this.selectedAssignee = this.issue.assigneeId || null;
       this.selectedStatus = this.issue.status;
+      this.loadAuditLogs();
     }
+  }
+
+  loadAuditLogs(): void {
+    if (!this.issue) return;
+    this.issueService.getIssueHistory(this.issue.id).subscribe({
+      next: (logs) => this.auditLogs = logs,
+      error: () => console.error('Failed to load audit logs')
+    });
   }
 
   onClose(): void {
@@ -69,6 +81,7 @@ export class IssueDetailsDrawerComponent implements OnChanges {
       next: (updatedIssue) => {
         this.message.success('Issue assigned successfully');
         this.issueUpdated.emit(updatedIssue);
+        this.loadAuditLogs();
         this.isLoading = false;
       },
       error: () => {
@@ -86,6 +99,7 @@ export class IssueDetailsDrawerComponent implements OnChanges {
       next: (updatedIssue) => {
         this.message.success('Status updated successfully');
         this.issueUpdated.emit(updatedIssue);
+        this.loadAuditLogs();
         this.isLoading = false;
       },
       error: () => {

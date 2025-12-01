@@ -53,4 +53,8 @@ export class IssueService {
   addComment(issueId: string, content: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/${issueId}/comments`, { content });
   }
+
+  getIssueHistory(issueId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${issueId}/history`);
+  }
 }

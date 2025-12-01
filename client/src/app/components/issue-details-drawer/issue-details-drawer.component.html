@@ -64,6 +64,19 @@
                 <h3>Comments</h3>
                 <app-comment-list [issueId]="issue.id"></app-comment-list>
             </div>
+
+            <nz-divider></nz-divider>
+
+            <div class="history-section">
+                <h3>History</h3>
+                <nz-timeline>
+                    <nz-timeline-item *ngFor="let log of auditLogs">
+                        <p><strong>{{ log.action }}</strong> - {{ log.user.name }}</p>
+                        <p>{{ log.details }}</p>
+                        <span style="font-size: 12px; color: #888;">{{ log.createdAt | date:'medium' }}</span>
+                    </nz-timeline-item>
+                </nz-timeline>
+            </div>
         </div>
     </ng-container>
 </nz-drawer>
