@@ -1,1 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'styles/variables';
+@import 'styles/mixins';
+
+body {
+    background-color: $background-color;
+    font-family: $font-family;
+    color: $text-color;
+    margin: 0;
+    padding: 0;
+}

@@ -36,7 +36,7 @@
                                 [nzLabel]="emp.name"></nz-option>
                         </nz-select>
                         <button nz-button nzType="primary" (click)="assignIssue()"
-                            [nzLoading]="isLoading">Assign</button>
+                            [nzLoading]="isLoading()">Assign</button>
                     </div>
                 </div>
 
@@ -47,7 +47,7 @@
                             <nz-option *ngFor="let s of statuses" [nzValue]="s" [nzLabel]="s"></nz-option>
                         </nz-select>
                         <button nz-button nzType="primary" (click)="updateStatus()"
-                            [nzLoading]="isLoading">Update</button>
+                            [nzLoading]="isLoading()">Update</button>
                     </div>
                 </div>
             </div>
@@ -56,19 +56,24 @@
 
             <div class="comments-section">
                 <h3>Comments</h3>
-                <app-comment-list [issueId]="issue.id"></app-comment-list>
+                <app-comment-list *ngIf="issue" [issueId]="issue.id"></app-comment-list>
             </div>
 
             <nz-divider></nz-divider>
 
             <div class="history-section">
                 <h3>History</h3>
+                <nz-divider></nz-divider>
                 <nz-timeline>
-                    <nz-timeline-item *ngFor="let log of auditLogs">
-                        <p><strong>{{ log.action }}</strong> - {{ log.user.name }}</p>
+                    @for (log of auditLogs(); track log.id) {
+                    <nz-timeline-item [nzColor]="'blue'">
+                        <p><strong>{{ log.action }}</strong> by {{ log.user?.name }} - {{ log.createdAt | date:'short'
+                            }}</p>
+                        @if (log.details) {
                         <p>{{ log.details }}</p>
-                        <span style="font-size: 12px; color: #888;">{{ log.createdAt | date:'medium' }}</span>
+                        }
                     </nz-timeline-item>
+                    }
                 </nz-timeline>
             </div>
         </div>

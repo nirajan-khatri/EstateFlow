@@ -1,6 +1,7 @@
 <div class="issue-list-container">
     <nz-card nzTitle="My Reported Issues" [nzExtra]="extraTemplate">
-        <nz-table #basicTable [nzData]="issues" [nzLoading]="loading" [nzNoResult]="noResultTemplate">
+        <nz-table #basicTable [nzData]="issueService.issues()" [nzLoading]="issueService.loading()"
+            [nzNoResult]="noResultTemplate">
             <thead>
                 <tr>
                     <th>Title</th>
@@ -11,7 +12,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let data of basicTable.data">
+                @for (data of basicTable.data; track data.id) {
+                <tr>
                     <td>{{ data.title }}</td>
                     <td>
                         <nz-tag [nzColor]="getPriorityColor(data.priority)">{{ data.priority }}</nz-tag>
@@ -24,6 +26,7 @@
                         <a nz-button nzType="link" (click)="openDrawer(data)">View</a>
                     </td>
                 </tr>
+                }
             </tbody>
         </nz-table>
     </nz-card>

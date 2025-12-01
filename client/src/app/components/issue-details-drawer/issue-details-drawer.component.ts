@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ChangeDetectionStrategy, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
@@ -32,7 +32,8 @@ import { CommentListComponent } from '../comment-list/comment-list.component';
     CommentListComponent
   ],
   templateUrl: './issue-details-drawer.component.html',
-  styleUrls: ['./issue-details-drawer.component.scss']
+  styleUrls: ['./issue-details-drawer.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IssueDetailsDrawerComponent implements OnChanges {
   @Input() visible = false;
@@ -42,16 +43,15 @@ export class IssueDetailsDrawerComponent implements OnChanges {
   @Output() close = new EventEmitter<void>();
   @Output() issueUpdated = new EventEmitter<Issue>();
 
+  private issueService = inject(IssueService);
+  private message = inject(NzMessageService);
+
   selectedAssignee: string | null = null;
   selectedStatus: IssueStatus | null = null;
   statuses = Object.values(IssueStatus);
-  isLoading = false;
-  auditLogs: AuditLog[] = [];
 
-  constructor(
-    private issueService: IssueService,
-    private message: NzMessageService
-  ) { }
+  isLoading = signal(false);
+  auditLogs = signal<AuditLog[]>([]);
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['issue'] && this.issue) {
@@ -64,7 +64,7 @@ export class IssueDetailsDrawerComponent implements OnChanges {
   loadAuditLogs(): void {
     if (!this.issue) return;
     this.issueService.getIssueHistory(this.issue.id).subscribe({
-      next: (logs) => this.auditLogs = logs,
+      next: (logs) => this.auditLogs.set(logs),
       error: () => console.error('Failed to load audit logs')
     });
   }
@@ -76,17 +76,17 @@ export class IssueDetailsDrawerComponent implements OnChanges {
   assignIssue(): void {
     if (!this.issue || !this.selectedAssignee) return;
 
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.issueService.assignIssue(this.issue.id, this.selectedAssignee).subscribe({
       next: (updatedIssue) => {
         this.message.success('Issue assigned successfully');
         this.issueUpdated.emit(updatedIssue);
         this.loadAuditLogs();
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: () => {
         this.message.error('Failed to assign issue');
-        this.isLoading = false;
+        this.isLoading.set(false);
       }
     });
   }
@@ -94,17 +94,17 @@ export class IssueDetailsDrawerComponent implements OnChanges {
   updateStatus(): void {
     if (!this.issue || !this.selectedStatus) return;
 
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.issueService.updateStatus(this.issue.id, this.selectedStatus).subscribe({
       next: (updatedIssue) => {
         this.message.success('Status updated successfully');
         this.issueUpdated.emit(updatedIssue);
         this.loadAuditLogs();
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: () => {
         this.message.error('Failed to update status');
-        this.isLoading = false;
+        this.isLoading.set(false);
       }
     });
   }

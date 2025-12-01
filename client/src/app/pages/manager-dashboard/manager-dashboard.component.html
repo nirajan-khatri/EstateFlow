@@ -1,6 +1,7 @@
 <div class="manager-dashboard-container">
     <!-- Analytics Section -->
-    <div class="analytics-section" *ngIf="stats" style="margin-bottom: 24px;">
+    @if (stats) {
+    <div class="analytics-section" style="margin-bottom: 24px;">
         <div class="dashboard-header"
             style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
             <h2>Manager Dashboard</h2>
@@ -38,24 +39,30 @@
             </div>
         </div>
     </div>
+    }
 
     <!-- Issue Management Section -->
     <nz-card nzTitle="Issue Management" [nzExtra]="extraTemplate">
         <div class="filters">
-            <nz-select [(ngModel)]="statusFilter" (ngModelChange)="filterIssues()"
+            <nz-select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"
                 style="width: 200px; margin-right: 16px;" nzPlaceHolder="Filter by Status">
                 <nz-option nzValue="ALL" nzLabel="All Statuses"></nz-option>
-                <nz-option *ngFor="let s of statuses" [nzValue]="s" [nzLabel]="s"></nz-option>
+                @for (s of statuses; track s) {
+                <nz-option [nzValue]="s" [nzLabel]="s"></nz-option>
+                }
             </nz-select>
 
-            <nz-select [(ngModel)]="priorityFilter" (ngModelChange)="filterIssues()" style="width: 200px;"
+            <nz-select [ngModel]="priorityFilter()" (ngModelChange)="priorityFilter.set($event)" style="width: 200px;"
                 nzPlaceHolder="Filter by Priority">
                 <nz-option nzValue="ALL" nzLabel="All Priorities"></nz-option>
-                <nz-option *ngFor="let p of priorities" [nzValue]="p" [nzLabel]="p"></nz-option>
+                @for (p of priorities; track p) {
+                <nz-option [nzValue]="p" [nzLabel]="p"></nz-option>
+                }
             </nz-select>
         </div>
 
-        <nz-table #basicTable [nzData]="filteredIssues" [nzLoading]="loading" [nzNoResult]="noResultTemplate">
+        <nz-table #basicTable [nzData]="filteredIssues()" [nzLoading]="issueService.loading()"
+            [nzNoResult]="noResultTemplate">
             <thead>
                 <tr>
                     <th>Title</th>
@@ -68,7 +75,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let data of basicTable.data">
+                @for (data of basicTable.data; track data.id) {
+                <tr>
                     <td>{{ data.title }}</td>
                     <td>{{ data.reporterId }}</td>
                     <!-- Ideally show name, need to update Issue interface to include relations -->
@@ -84,11 +92,12 @@
                         <a nz-button nzType="link" (click)="openDrawer(data)">Manage</a>
                     </td>
                 </tr>
+                }
             </tbody>
         </nz-table>
     </nz-card>
     <ng-template #extraTemplate>
-        <button nz-button nzType="default" (click)="loadIssues()">
+        <button nz-button nzType="default" (click)="issueService.getAllIssues().subscribe()">
             <span nz-icon nzType="reload"></span>
             Refresh List
         </button>

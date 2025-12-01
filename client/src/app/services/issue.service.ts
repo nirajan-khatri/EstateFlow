@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap, finalize } from 'rxjs';
 import { Issue } from '../models/issue.model';
 
 @Injectable({
@@ -9,9 +9,20 @@ import { Issue } from '../models/issue.model';
 export class IssueService {
   private apiUrl = 'http://localhost:3000/api/issues';
 
+  // State Signals
+  private issuesSignal = signal<Issue[]>([]);
+  private loadingSignal = signal<boolean>(false);
+  private errorSignal = signal<string | null>(null);
+
+  // Computed Signals (Read-only)
+  readonly issues = computed(() => this.issuesSignal());
+  readonly loading = computed(() => this.loadingSignal());
+  readonly error = computed(() => this.errorSignal());
+
   constructor(private http: HttpClient) { }
 
   createIssue(issueData: any, files: File[]): Observable<Issue> {
+    this.loadingSignal.set(true);
     const formData = new FormData();
     formData.append('title', issueData.title);
     formData.append('description', issueData.description);
@@ -23,11 +34,20 @@ export class IssueService {
       });
     }
 
-    return this.http.post<Issue>(this.apiUrl, formData);
+    return this.http.post<Issue>(this.apiUrl, formData).pipe(
+      tap(newIssue => {
+        this.issuesSignal.update(issues => [newIssue, ...issues]);
+      }),
+      finalize(() => this.loadingSignal.set(false))
+    );
   }
 
   getMyIssues(): Observable<Issue[]> {
-    return this.http.get<Issue[]>(this.apiUrl);
+    this.loadingSignal.set(true);
+    return this.http.get<Issue[]>(this.apiUrl).pipe(
+      tap(issues => this.issuesSignal.set(issues)),
+      finalize(() => this.loadingSignal.set(false))
+    );
   }
 
   getIssueById(id: string): Observable<Issue> {
@@ -35,15 +55,31 @@ export class IssueService {
   }
 
   getAllIssues(): Observable<Issue[]> {
-    return this.http.get<Issue[]>(`${this.apiUrl}/all`);
+    this.loadingSignal.set(true);
+    return this.http.get<Issue[]>(`${this.apiUrl}/all`).pipe(
+      tap(issues => this.issuesSignal.set(issues)),
+      finalize(() => this.loadingSignal.set(false))
+    );
   }
 
   assignIssue(issueId: string, assigneeId: string): Observable<Issue> {
-    return this.http.patch<Issue>(`${this.apiUrl}/${issueId}/assign`, { assigneeId });
+    return this.http.patch<Issue>(`${this.apiUrl}/${issueId}/assign`, { assigneeId }).pipe(
+      tap(updatedIssue => {
+        this.issuesSignal.update(issues =>
+          issues.map(i => i.id === updatedIssue.id ? updatedIssue : i)
+        );
+      })
+    );
   }
 
   updateStatus(id: string, status: any): Observable<Issue> {
-    return this.http.patch<Issue>(`${this.apiUrl}/${id}/status`, { status });
+    return this.http.patch<Issue>(`${this.apiUrl}/${id}/status`, { status }).pipe(
+      tap(updatedIssue => {
+        this.issuesSignal.update(issues =>
+          issues.map(i => i.id === updatedIssue.id ? updatedIssue : i)
+        );
+      })
+    );
   }
 
   getComments(issueId: string): Observable<any[]> {

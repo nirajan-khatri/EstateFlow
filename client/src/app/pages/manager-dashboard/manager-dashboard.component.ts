@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, signal, computed, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -43,12 +43,33 @@ import { IssueDetailsDrawerComponent } from '../../components/issue-details-draw
     IssueDetailsDrawerComponent
   ],
   templateUrl: './manager-dashboard.component.html',
-  styleUrls: ['./manager-dashboard.component.scss']
+  styleUrls: ['./manager-dashboard.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ManagerDashboardComponent implements OnInit {
-  issues: Issue[] = [];
-  filteredIssues: Issue[] = [];
-  loading = true;
+  public issueService = inject(IssueService);
+  private authService = inject(AuthService);
+  private dashboardService = inject(DashboardService);
+  private socketService = inject(SocketService);
+  private message = inject(NzMessageService);
+
+  // Filters (Signals)
+  statusFilter = signal<IssueStatus | 'ALL'>('ALL');
+  priorityFilter = signal<Priority | 'ALL'>('ALL');
+
+  // Computed Filtered Issues
+  filteredIssues = computed(() => {
+    const issues = this.issueService.issues();
+    const status = this.statusFilter();
+    const priority = this.priorityFilter();
+
+    return issues.filter(issue => {
+      const matchStatus = status === 'ALL' || issue.status === status;
+      const matchPriority = priority === 'ALL' || issue.priority === priority;
+      return matchStatus && matchPriority;
+    });
+  });
+
   employees: User[] = [];
 
   // Analytics Data
@@ -58,28 +79,17 @@ export class ManagerDashboardComponent implements OnInit {
   // Bar Chart (Status)
   public barChartData: ChartConfiguration<'bar'>['data'] = {
     labels: [],
-    datasets: [
-      { data: [], label: 'Issues' }
-    ]
+    datasets: [{ data: [], label: 'Issues' }]
   };
-  public barChartOptions: ChartOptions<'bar'> = {
-    responsive: true,
-  };
+  public barChartOptions: ChartOptions<'bar'> = { responsive: true };
 
   // Pie Chart (Priority)
   public pieChartData: ChartConfiguration<'pie'>['data'] = {
     labels: [],
-    datasets: [
-      { data: [] }
-    ]
+    datasets: [{ data: [] }]
   };
-  public pieChartOptions: ChartOptions<'pie'> = {
-    responsive: true,
-  };
+  public pieChartOptions: ChartOptions<'pie'> = { responsive: true };
 
-  // Filters
-  statusFilter: IssueStatus | 'ALL' = 'ALL';
-  priorityFilter: Priority | 'ALL' = 'ALL';
   statuses = Object.values(IssueStatus);
   priorities = Object.values(Priority);
 
@@ -87,16 +97,8 @@ export class ManagerDashboardComponent implements OnInit {
   drawerVisible = false;
   selectedIssue: Issue | null = null;
 
-  constructor(
-    private issueService: IssueService,
-    private authService: AuthService,
-    private dashboardService: DashboardService,
-    private socketService: SocketService,
-    private message: NzMessageService
-  ) { }
-
   ngOnInit(): void {
-    this.loadIssues();
+    this.issueService.getAllIssues().subscribe();
     this.loadEmployees();
     this.loadStats();
     this.setupRealtimeUpdates();
@@ -105,15 +107,9 @@ export class ManagerDashboardComponent implements OnInit {
   setupRealtimeUpdates(): void {
     const events = ['issue:created', 'issue:assigned', 'issue:status_change'];
     events.forEach(event => {
-      this.socketService.on(event).subscribe((data: any) => {
+      this.socketService.on(event).subscribe(() => {
         this.loadStats();
-        // Also reload issues list if needed, or update locally
-        if (event === 'issue:created') {
-          this.issues.unshift(data);
-          this.filterIssues();
-        } else {
-          this.loadIssues(); // Refresh list to be safe
-        }
+        this.issueService.getAllIssues().subscribe(); // Refresh issues
       });
     });
   }
@@ -137,20 +133,14 @@ export class ManagerDashboardComponent implements OnInit {
   }
 
   updateCharts(data: DashboardStats): void {
-    // Update Bar Chart
     this.barChartData = {
       labels: data.statusCounts.map((s: { name: string; value: number }) => s.name),
-      datasets: [
-        { data: data.statusCounts.map((s: { name: string; value: number }) => s.value), label: 'Issues' }
-      ]
+      datasets: [{ data: data.statusCounts.map((s: { name: string; value: number }) => s.value), label: 'Issues' }]
     };
 
-    // Update Pie Chart
     this.pieChartData = {
       labels: data.priorityCounts.map((p: { name: string; value: number }) => p.name),
-      datasets: [
-        { data: data.priorityCounts.map((p: { name: string; value: number }) => p.value) }
-      ]
+      datasets: [{ data: data.priorityCounts.map((p: { name: string; value: number }) => p.value) }]
     };
   }
 
@@ -192,33 +182,10 @@ export class ManagerDashboardComponent implements OnInit {
     document.body.removeChild(link);
   }
 
-  loadIssues(): void {
-    this.loading = true;
-    this.issueService.getAllIssues().subscribe({
-      next: (data) => {
-        this.issues = data;
-        this.filterIssues();
-        this.loading = false;
-      },
-      error: (err) => {
-        this.message.error('Failed to load issues');
-        this.loading = false;
-      }
-    });
-  }
-
   loadEmployees(): void {
     this.authService.getEmployees().subscribe({
       next: (data) => this.employees = data,
       error: () => this.message.error('Failed to load employees')
-    });
-  }
-
-  filterIssues(): void {
-    this.filteredIssues = this.issues.filter(issue => {
-      const matchStatus = this.statusFilter === 'ALL' || issue.status === this.statusFilter;
-      const matchPriority = this.priorityFilter === 'ALL' || issue.priority === this.priorityFilter;
-      return matchStatus && matchPriority;
     });
   }
 
@@ -233,11 +200,12 @@ export class ManagerDashboardComponent implements OnInit {
   }
 
   onIssueUpdated(updatedIssue: Issue): void {
-    const index = this.issues.findIndex(i => i.id === updatedIssue.id);
-    if (index !== -1) {
-      this.issues[index] = updatedIssue;
-      this.filterIssues();
-    }
+    // Service handles update via signal, but we might need to refresh if not using the same instance
+    // Since we use singleton service, it should be fine.
+    // But if the drawer updates the issue via API, we should re-fetch or update local state.
+    // The drawer component likely calls service.update... which updates the signal.
+    // So we might not need to do anything here if the signal is updated.
+    this.issueService.getAllIssues().subscribe();
   }
 
   getPriorityColor(priority: Priority): string {

@@ -49,15 +49,15 @@
                             </nz-form-control>
                         </nz-form-item>
                     </div>
+                    <div nz-col [nzSpan]="24">
+                        <nz-form-item>
+                            <nz-form-control>
+                                <button nz-button nzType="primary" [nzLoading]="isLoading()" htmlType="submit">Submit
+                                    Issue</button>
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
                 </div>
-
-                <nz-form-item style="margin-bottom: 0;">
-                    <nz-form-control>
-                        <button nz-button nzType="primary" [nzLoading]="isLoading" nzSize="large" nzBlock>
-                            Submit Issue
-                        </button>
-                    </nz-form-control>
-                </nz-form-item>
             </form>
         </nz-card>
     </div>

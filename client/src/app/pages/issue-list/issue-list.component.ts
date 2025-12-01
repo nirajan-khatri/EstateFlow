@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -26,34 +26,18 @@ import { IssueDetailsDrawerComponent } from '../../components/issue-details-draw
     IssueDetailsDrawerComponent
   ],
   templateUrl: './issue-list.component.html',
-  styleUrls: ['./issue-list.component.scss']
+  styleUrls: ['./issue-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class IssueListComponent implements OnInit {
-  issues: Issue[] = [];
-  loading = true;
+  public issueService = inject(IssueService);
 
   // Drawer
   drawerVisible = false;
   selectedIssue: Issue | null = null;
 
-  constructor(private issueService: IssueService) { }
-
   ngOnInit(): void {
-    this.loadIssues();
-  }
-
-  loadIssues(): void {
-    this.loading = true;
-    this.issueService.getMyIssues().subscribe({
-      next: (data) => {
-        this.issues = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Failed to load issues', err);
-        this.loading = false;
-      }
-    });
+    this.issueService.getMyIssues().subscribe();
   }
 
   openDrawer(issue: Issue): void {

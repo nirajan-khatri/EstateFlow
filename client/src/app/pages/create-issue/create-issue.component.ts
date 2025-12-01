@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -29,20 +29,21 @@ import { Priority } from '../../models/issue.model';
     NzGridModule
   ],
   templateUrl: './create-issue.component.html',
-  styleUrls: ['./create-issue.component.scss']
+  styleUrls: ['./create-issue.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CreateIssueComponent {
+  private fb = inject(FormBuilder);
+  private issueService = inject(IssueService);
+  private router = inject(Router);
+  private message = inject(NzMessageService);
+
   issueForm: FormGroup;
-  isLoading = false;
+  isLoading = signal(false);
   fileList: NzUploadFile[] = [];
   priorities = Object.values(Priority);
 
-  constructor(
-    private fb: FormBuilder,
-    private issueService: IssueService,
-    private router: Router,
-    private message: NzMessageService
-  ) {
+  constructor() {
     this.issueForm = this.fb.group({
       title: ['', [Validators.required]],
       description: ['', [Validators.required]],
@@ -57,7 +58,7 @@ export class CreateIssueComponent {
 
   submitForm(): void {
     if (this.issueForm.valid) {
-      this.isLoading = true;
+      this.isLoading.set(true);
       const files = this.fileList.map(f => f as unknown as File);
 
       this.issueService.createIssue(this.issueForm.value, files).subscribe({
@@ -67,7 +68,7 @@ export class CreateIssueComponent {
         },
         error: (err) => {
           this.message.error(err.error?.message || 'Failed to report issue');
-          this.isLoading = false;
+          this.isLoading.set(false);
         }
       });
     } else {
