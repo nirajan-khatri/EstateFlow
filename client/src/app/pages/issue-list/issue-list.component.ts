@@ -9,6 +9,7 @@ import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { IssueService } from '../../services/issue.service';
 import { Issue, Priority, IssueStatus } from '../../models/issue.model';
+import { IssueDetailsDrawerComponent } from '../../components/issue-details-drawer/issue-details-drawer.component';
 
 @Component({
   selector: 'app-issue-list',
@@ -21,7 +22,8 @@ import { Issue, Priority, IssueStatus } from '../../models/issue.model';
     NzButtonModule,
     NzIconModule,
     NzCardModule,
-    NzEmptyModule
+    NzEmptyModule,
+    IssueDetailsDrawerComponent
   ],
   templateUrl: './issue-list.component.html',
   styleUrls: ['./issue-list.component.scss']
@@ -29,6 +31,10 @@ import { Issue, Priority, IssueStatus } from '../../models/issue.model';
 export class IssueListComponent implements OnInit {
   issues: Issue[] = [];
   loading = true;
+
+  // Drawer
+  drawerVisible = false;
+  selectedIssue: Issue | null = null;
 
   constructor(private issueService: IssueService) { }
 
@@ -48,6 +54,16 @@ export class IssueListComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  openDrawer(issue: Issue): void {
+    this.selectedIssue = issue;
+    this.drawerVisible = true;
+  }
+
+  closeDrawer(): void {
+    this.drawerVisible = false;
+    this.selectedIssue = null;
   }
 
   getPriorityColor(priority: Priority): string {

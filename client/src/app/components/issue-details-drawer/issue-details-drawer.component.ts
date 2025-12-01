@@ -36,6 +36,7 @@ export class IssueDetailsDrawerComponent implements OnChanges {
   @Input() visible = false;
   @Input() issue: Issue | null = null;
   @Input() employees: User[] = [];
+  @Input() isManager = false;
   @Output() close = new EventEmitter<void>();
   @Output() issueUpdated = new EventEmitter<Issue>();
 

@@ -21,7 +21,7 @@
                     </td>
                     <td>{{ data.createdAt | date:'short' }}</td>
                     <td>
-                        <a nz-button nzType="link">View</a>
+                        <a nz-button nzType="link" (click)="openDrawer(data)">View</a>
                     </td>
                 </tr>
             </tbody>
@@ -44,4 +44,7 @@
             </ng-template>
         </nz-empty>
     </ng-template>
+
+    <app-issue-details-drawer [visible]="drawerVisible" [issue]="selectedIssue" [isManager]="false"
+        (close)="closeDrawer()"></app-issue-details-drawer>
 </div>

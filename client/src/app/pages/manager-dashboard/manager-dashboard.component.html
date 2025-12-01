@@ -62,5 +62,5 @@
     </ng-template>
 
     <app-issue-details-drawer [visible]="drawerVisible" [issue]="selectedIssue" [employees]="employees"
-        (close)="closeDrawer()" (issueUpdated)="onIssueUpdated($event)"></app-issue-details-drawer>
+        [isManager]="true" (close)="closeDrawer()" (issueUpdated)="onIssueUpdated($event)"></app-issue-details-drawer>
 </div>
