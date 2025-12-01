@@ -16,6 +16,8 @@ interface AuthResponse {
   user: User;
 }
 
+import { SocketService } from './socket.service';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -24,14 +26,20 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private socketService: SocketService
+  ) {
     this.loadUserFromStorage();
   }
 
   private loadUserFromStorage(): void {
     const user = localStorage.getItem('user');
     if (user) {
-      this.currentUserSubject.next(JSON.parse(user));
+      const parsedUser = JSON.parse(user);
+      this.currentUserSubject.next(parsedUser);
+      this.socketService.connect(parsedUser.id);
     }
   }
 
@@ -51,6 +59,7 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.currentUserSubject.next(null);
+    this.socketService.disconnect();
     this.router.navigate(['/login']);
   }
 
@@ -58,6 +67,7 @@ export class AuthService {
     localStorage.setItem('token', response.token);
     localStorage.setItem('user', JSON.stringify(response.user));
     this.currentUserSubject.next(response.user);
+    this.socketService.connect(response.user.id);
   }
 
   getToken(): string | null {

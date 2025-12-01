@@ -1,196 +1,87 @@
 import { Request, Response, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { IssueService } from '../services/issue.service';
 import { io } from '../index';
+import { tryCatch } from '../utils/tryCatch';
+import { AppError } from '../utils/AppError';
 
-export const createIssue = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { title, description, priority } = req.body;
-        const userId = req.user?.userId;
+export const createIssue = tryCatch(async (req: Request, res: Response) => {
+    const { title, description } = req.body;
+    const userId = req.user?.userId;
 
-        if (!userId) {
-            return res.status(401).json({ message: 'Unauthorized' });
-        }
+    if (!userId) throw new AppError('Unauthorized', 401);
+    if (!title || !description) throw new AppError('Please provide title and description', 400);
 
-        const files = req.files as Express.Multer.File[];
-        const images = files ? files.map(file => `/uploads/${file.filename}`) : [];
+    const files = req.files as Express.Multer.File[];
+    const images = files ? files.map(file => `/uploads/${file.filename}`) : [];
 
-        const issue = await prisma.issue.create({
-            data: {
-                title,
-                description,
-                priority: priority || 'MEDIUM',
-                status: 'OPEN',
-                images,
-                reporterId: userId,
-                auditLogs: {
-                    create: {
-                        action: 'CREATED',
-                        details: 'Issue reported',
-                        userId
-                    }
-                }
-            }
-        });
+    const issue = await IssueService.createIssue(req.body, userId, images);
 
-        io.emit('issue:created', issue);
+    io.emit('issue:created', issue);
+    res.status(201).json(issue);
+});
 
-        res.status(201).json(issue);
-    } catch (error) {
-        next(error);
+export const getMyIssues = tryCatch(async (req: Request, res: Response) => {
+    const userId = req.user?.userId;
+    if (!userId) throw new AppError('Unauthorized', 401);
+
+    const issues = await IssueService.getMyIssues(userId);
+    res.json(issues);
+});
+
+export const getIssueById = tryCatch(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const userId = req.user?.userId;
+
+    const issue = await IssueService.getIssueById(id);
+
+    if (!issue) throw new AppError('Issue not found', 404);
+
+    if (issue.reporterId !== userId && req.user?.role !== 'MANAGER') {
+        throw new AppError('Forbidden', 403);
     }
-};
 
-export const getMyIssues = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const userId = req.user?.userId;
+    res.json(issue);
+});
 
-        if (!userId) {
-            return res.status(401).json({ message: 'Unauthorized' });
-        }
+export const getAllIssues = tryCatch(async (req: Request, res: Response) => {
+    const issues = await IssueService.getAllIssues();
+    res.json(issues);
+});
 
-        const issues = await prisma.issue.findMany({
-            where: {
-                reporterId: userId
-            },
-            orderBy: {
-                createdAt: 'desc'
-            }
-        });
+export const assignIssue = tryCatch(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { assigneeId } = req.body;
+    const userId = req.user!.userId;
 
-        res.json(issues);
-    } catch (error) {
-        next(error);
+    const issue = await IssueService.assignIssue(id, assigneeId, userId);
+
+    if (assigneeId) {
+        io.to(assigneeId).emit('issue:assigned', issue);
     }
-};
 
-export const getIssueById = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { id } = req.params;
-        const userId = req.user?.userId;
+    res.json(issue);
+});
 
-        const issue = await prisma.issue.findUnique({
-            where: { id },
-            include: {
-                reporter: {
-                    select: { name: true, email: true }
-                },
-                assignee: {
-                    select: { name: true, email: true }
-                }
-            }
-        });
+export const updateIssueStatus = tryCatch(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const userId = req.user!.userId;
 
-        if (!issue) {
-            return res.status(404).json({ message: 'Issue not found' });
-        }
+    const issue = await IssueService.updateIssueStatus(id, status, userId);
 
-        // Only allow reporter or manager to view details (can be refined)
-        if (issue.reporterId !== userId && req.user?.role !== 'MANAGER') {
-            return res.status(403).json({ message: 'Forbidden' });
-        }
+    const recipients = new Set<string>();
+    if (issue.assigneeId) recipients.add(issue.assigneeId);
+    recipients.add(issue.reporterId);
 
-        res.json(issue);
-    } catch (error) {
-        next(error);
-    }
-};
+    recipients.forEach(recipientId => {
+        io.to(recipientId).emit('issue:status_change', issue);
+    });
 
-// Manager: Get all issues
-export const getAllIssues = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const issues = await prisma.issue.findMany({
-            include: {
-                reporter: { select: { name: true, email: true } },
-                assignee: { select: { name: true, email: true } }
-            },
-            orderBy: { createdAt: 'desc' }
-        });
-        res.json(issues);
-    } catch (error) {
-        next(error);
-    }
-};
+    res.json(issue);
+});
 
-// Manager: Assign issue
-export const assignIssue = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { id } = req.params;
-        const { assigneeId } = req.body;
-
-        const issue = await prisma.issue.update({
-            where: { id },
-            data: {
-                assigneeId,
-                auditLogs: {
-                    create: {
-                        action: 'ASSIGNED',
-                        details: `Assigned to user ${assigneeId}`,
-                        userId: req.user!.userId
-                    }
-                }
-            }
-        });
-
-        if (assigneeId) {
-            io.to(assigneeId).emit('issue:assigned', issue);
-        }
-
-        res.json(issue);
-    } catch (error) {
-        next(error);
-    }
-};
-
-// Manager: Update status
-export const updateIssueStatus = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { id } = req.params;
-        const { status } = req.body;
-
-        const issue = await prisma.issue.update({
-            where: { id },
-            data: {
-                status,
-                auditLogs: {
-                    create: {
-                        action: 'STATUS_CHANGE',
-                        details: `Status updated to ${status}`,
-                        userId: req.user!.userId
-                    }
-                }
-            }
-        });
-
-        const recipients = new Set<string>();
-        if (issue.assigneeId) recipients.add(issue.assigneeId);
-        recipients.add(issue.reporterId);
-
-        recipients.forEach(recipientId => {
-            io.to(recipientId).emit('issue:status_change', issue);
-        });
-
-        res.json(issue);
-    } catch (error) {
-        next(error);
-    }
-};
-
-export const getIssueHistory = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { id } = req.params;
-        const logs = await prisma.auditLog.findMany({
-            where: { issueId: id },
-            include: {
-                user: {
-                    select: { name: true }
-                }
-            },
-            orderBy: { createdAt: 'desc' }
-        });
-        res.json(logs);
-    } catch (error) {
-        next(error);
-    }
-};
+export const getIssueHistory = tryCatch(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const logs = await IssueService.getIssueHistory(id);
+    res.json(logs);
+});

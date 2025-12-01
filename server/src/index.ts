@@ -1,23 +1,28 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { Server } from 'socket.io';
 import routes from './routes';
 import { errorHandler } from './middleware/errorHandler';
 
 dotenv.config();
 
+console.log('Starting server initialization...');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors({
+const corsOptions = {
   origin: true, // Reflect the request origin
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
-}));
+};
+
+app.use(cors(corsOptions));
 
 // Handle preflight requests explicitly
-app.options(/.*/, cors() as any);
+app.options(/.*/, cors(corsOptions));
 
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
@@ -29,8 +34,6 @@ app.get('/', (req, res) => {
 app.use('/api', routes);
 
 app.use(errorHandler);
-
-import { Server } from 'socket.io';
 
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

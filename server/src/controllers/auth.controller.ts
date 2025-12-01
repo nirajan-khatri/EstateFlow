@@ -1,108 +1,63 @@
 import { Request, Response, NextFunction } from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
+import { AuthService } from '../services/auth.service';
+import { tryCatch } from '../utils/tryCatch';
+import { AppError } from '../utils/AppError';
 
-const prisma = new PrismaClient();
+export const register = tryCatch(async (req: Request, res: Response) => {
+    const { email, password, name } = req.body;
 
-export const register = async (req: Request, res: Response, next: NextFunction) => {
+    if (!email || !password || !name) {
+        throw new AppError('Please provide email, password and name', 400);
+    }
+
     try {
-        const { email, password, name, role } = req.body;
-
-        // Check if user exists
-        const existingUser = await prisma.user.findUnique({
-            where: { email }
-        });
-
-        if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
-
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Create user
-        const user = await prisma.user.create({
-            data: {
-                email,
-                password: hashedPassword,
-                name,
-                role: role || 'EMPLOYEE' // Default to EMPLOYEE if not specified
-            }
-        });
-
-        // Generate JWT
-        const token = jwt.sign(
-            { userId: user.id, role: user.role },
-            process.env.JWT_SECRET || 'supersecretkey',
-            { expiresIn: '1d' }
-        );
-
+        const result = await AuthService.register(req.body);
         res.status(201).json({
             message: 'User registered successfully',
-            token,
+            ...result,
             user: {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                role: user.role
+                id: result.user.id,
+                email: result.user.email,
+                name: result.user.name,
+                role: result.user.role
             }
         });
-    } catch (error) {
-        next(error);
+    } catch (error: any) {
+        if (error.message === 'User already exists') {
+            throw new AppError(error.message, 400);
+        }
+        throw error;
     }
-};
+});
 
-export const login = async (req: Request, res: Response, next: NextFunction) => {
+export const login = tryCatch(async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        throw new AppError('Please provide email and password', 400);
+    }
+
     try {
-        const { email, password } = req.body;
-
-        // Find user
-        const user = await prisma.user.findUnique({
-            where: { email }
-        });
-
-        if (!user) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
-
-        // Check password
-        const isMatch = await bcrypt.compare(password, user.password);
-
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
-
-        // Generate JWT
-        const token = jwt.sign(
-            { userId: user.id, role: user.role },
-            process.env.JWT_SECRET || 'supersecretkey',
-            { expiresIn: '1d' }
-        );
-
+        const result = await AuthService.login(req.body);
         res.json({
             message: 'Login successful',
-            token,
+            ...result,
             user: {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                role: user.role
+                id: result.user.id,
+                email: result.user.email,
+                name: result.user.name,
+                role: result.user.role
             }
         });
-    } catch (error) {
-        next(error);
+    } catch (error: any) {
+        if (error.message === 'Invalid credentials') {
+            throw new AppError(error.message, 401);
+        }
+        throw error;
     }
-};
+});
 
-export const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const employees = await prisma.user.findMany({
-            where: { role: 'EMPLOYEE' },
-            select: { id: true, name: true, email: true }
-        });
-        res.json(employees);
-    } catch (error) {
-        next(error);
-    }
-};
+export const getEmployees = tryCatch(async (req: Request, res: Response) => {
+    const employees = await AuthService.getEmployees();
+    res.json(employees);
+});
