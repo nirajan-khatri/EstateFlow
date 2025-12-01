@@ -1,7 +1,50 @@
 .create-issue-container {
     display: flex;
     justify-content: center;
-    padding-top: 50px;
+    padding: 40px 24px;
     background-color: #f0f2f5;
-    min-height: 100vh;
+    min-height: 100%;
+}
+
+.form-wrapper {
+    width: 100%;
+    max-width: 700px;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 32px;
+
+    h1 {
+        font-size: 28px;
+        font-weight: 600;
+        color: #001529;
+        margin-bottom: 8px;
+    }
+
+    p {
+        color: #666;
+        font-size: 16px;
+    }
+}
+
+.issue-card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+
+    ::ng-deep .ant-card-body {
+        padding: 32px;
+    }
+}
+
+@media (max-width: 576px) {
+    .create-issue-container {
+        padding: 24px 16px;
+    }
+
+    .issue-card {
+        ::ng-deep .ant-card-body {
+            padding: 24px;
+        }
+    }
 }

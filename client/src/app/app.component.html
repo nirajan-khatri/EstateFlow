@@ -1,1 +1,45 @@
-<router-outlet></router-outlet>
+<nz-layout class="app-layout">
+    <nz-header class="app-header" *ngIf="currentUser$ | async as user">
+        <div class="header-container">
+            <div class="branding">
+                <div class="logo-icon">
+                    <span nz-icon nzType="home" nzTheme="fill"></span>
+                </div>
+                <span class="app-name">PropManager</span>
+            </div>
+
+            <ul nz-menu nzMode="horizontal" class="nav-menu">
+                <li nz-menu-item routerLink="/dashboard" nzMatchRouter *ngIf="user.role === 'EMPLOYEE'">
+                    <span nz-icon nzType="dashboard"></span> Dashboard
+                </li>
+                <li nz-menu-item routerLink="/issues" nzMatchRouter *ngIf="user.role === 'EMPLOYEE'">
+                    <span nz-icon nzType="unordered-list"></span> My Issues
+                </li>
+                <li nz-menu-item routerLink="/manager" nzMatchRouter *ngIf="user.role === 'MANAGER'">
+                    <span nz-icon nzType="control"></span> Manager Dashboard
+                </li>
+            </ul>
+
+            <div class="user-profile" nz-dropdown [nzDropdownMenu]="userMenu" nzTrigger="click">
+                <nz-avatar [nzText]="user.name.charAt(0).toUpperCase()" [nzSrc]="undefined"
+                    style="background-color: #1890ff;"></nz-avatar>
+                <span class="username">{{ user.name }}</span>
+                <span nz-icon nzType="down" class="dropdown-icon"></span>
+            </div>
+
+            <nz-dropdown-menu #userMenu="nzDropdownMenu">
+                <ul nz-menu>
+                    <li nz-menu-item (click)="logout()">
+                        <span nz-icon nzType="logout"></span> Logout
+                    </li>
+                </ul>
+            </nz-dropdown-menu>
+        </div>
+    </nz-header>
+
+    <nz-content>
+        <div class="inner-content">
+            <router-outlet></router-outlet>
+        </div>
+    </nz-content>
+</nz-layout>

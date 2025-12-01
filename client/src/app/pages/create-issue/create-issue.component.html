@@ -1,47 +1,63 @@
 <div class="create-issue-container">
-    <nz-card style="width: 600px;" nzTitle="Report a New Issue">
-        <form nz-form [formGroup]="issueForm" (ngSubmit)="submitForm()">
-            <nz-form-item>
-                <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="title">Title</nz-form-label>
-                <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="Please input the title!">
-                    <input nz-input formControlName="title" id="title" placeholder="Issue Title" />
-                </nz-form-control>
-            </nz-form-item>
+    <div class="form-wrapper">
+        <div class="page-header">
+            <h1>Report a New Issue</h1>
+            <p>Fill in the details below to submit a maintenance request.</p>
+        </div>
 
-            <nz-form-item>
-                <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="description">Description</nz-form-label>
-                <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="Please input the description!">
-                    <textarea nz-input formControlName="description" id="description" rows="4"
-                        placeholder="Describe the issue..."></textarea>
-                </nz-form-control>
-            </nz-form-item>
+        <nz-card [nzBordered]="false" class="issue-card">
+            <form nz-form [formGroup]="issueForm" (ngSubmit)="submitForm()" nzLayout="vertical">
+                <nz-form-item>
+                    <nz-form-label nzRequired nzFor="title">Issue Title</nz-form-label>
+                    <nz-form-control nzErrorTip="Please input the title!">
+                        <input nz-input formControlName="title" id="title" placeholder="e.g., Leaking Faucet in Kitchen"
+                            nzSize="large" />
+                    </nz-form-control>
+                </nz-form-item>
 
-            <nz-form-item>
-                <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="priority">Priority</nz-form-label>
-                <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="Please select priority!">
-                    <nz-select formControlName="priority" id="priority">
-                        <nz-option *ngFor="let p of priorities" [nzValue]="p" [nzLabel]="p"></nz-option>
-                    </nz-select>
-                </nz-form-control>
-            </nz-form-item>
+                <nz-form-item>
+                    <nz-form-label nzRequired nzFor="description">Description</nz-form-label>
+                    <nz-form-control nzErrorTip="Please input the description!">
+                        <textarea nz-input formControlName="description" id="description" rows="6"
+                            placeholder="Provide detailed information about the issue..." nzSize="large"></textarea>
+                    </nz-form-control>
+                </nz-form-item>
 
-            <nz-form-item>
-                <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="image">Image</nz-form-label>
-                <nz-form-control [nzSm]="14" [nzXs]="24">
-                    <nz-upload [nzBeforeUpload]="beforeUpload" [nzFileList]="fileList" [nzLimit]="1">
-                        <button nz-button type="button">
-                            <span nz-icon nzType="upload"></span>
-                            Select Image
+                <div nz-row [nzGutter]="24">
+                    <div nz-col [nzSpan]="12" [nzXs]="24">
+                        <nz-form-item>
+                            <nz-form-label nzRequired nzFor="priority">Priority Level</nz-form-label>
+                            <nz-form-control nzErrorTip="Please select priority!">
+                                <nz-select formControlName="priority" id="priority" nzPlaceHolder="Select Priority"
+                                    nzSize="large">
+                                    <nz-option *ngFor="let p of priorities" [nzValue]="p" [nzLabel]="p"></nz-option>
+                                </nz-select>
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                    <div nz-col [nzSpan]="12" [nzXs]="24">
+                        <nz-form-item>
+                            <nz-form-label nzFor="image">Attachment (Optional)</nz-form-label>
+                            <nz-form-control>
+                                <nz-upload [nzBeforeUpload]="beforeUpload" [nzFileList]="fileList" [nzLimit]="1">
+                                    <button nz-button type="button" nzSize="large" style="width: 100%;">
+                                        <span nz-icon nzType="upload"></span>
+                                        Upload Image
+                                    </button>
+                                </nz-upload>
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                </div>
+
+                <nz-form-item style="margin-bottom: 0;">
+                    <nz-form-control>
+                        <button nz-button nzType="primary" [nzLoading]="isLoading" nzSize="large" nzBlock>
+                            Submit Issue
                         </button>
-                    </nz-upload>
-                </nz-form-control>
-            </nz-form-item>
-
-            <nz-form-item>
-                <nz-form-control [nzSpan]="14" [nzOffset]="6">
-                    <button nz-button nzType="primary" [nzLoading]="isLoading">Submit Issue</button>
-                </nz-form-control>
-            </nz-form-item>
-        </form>
-    </nz-card>
+                    </nz-form-control>
+                </nz-form-item>
+            </form>
+        </nz-card>
+    </div>
 </div>
