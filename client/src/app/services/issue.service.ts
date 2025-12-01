@@ -11,14 +11,16 @@ export class IssueService {
 
   constructor(private http: HttpClient) { }
 
-  createIssue(issueData: any, imageFile?: File): Observable<Issue> {
+  createIssue(issueData: any, files: File[]): Observable<Issue> {
     const formData = new FormData();
     formData.append('title', issueData.title);
     formData.append('description', issueData.description);
     formData.append('priority', issueData.priority);
 
-    if (imageFile) {
-      formData.append('image', imageFile);
+    if (files && files.length > 0) {
+      files.forEach(file => {
+        formData.append('images', file);
+      });
     }
 
     return this.http.post<Issue>(this.apiUrl, formData);

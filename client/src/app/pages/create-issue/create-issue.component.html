@@ -37,12 +37,13 @@
                     </div>
                     <div nz-col [nzSpan]="12" [nzXs]="24">
                         <nz-form-item>
-                            <nz-form-label nzFor="image">Attachment (Optional)</nz-form-label>
+                            <nz-form-label nzFor="image">Attachments (Optional)</nz-form-label>
                             <nz-form-control>
-                                <nz-upload [nzBeforeUpload]="beforeUpload" [nzFileList]="fileList" [nzLimit]="1">
+                                <nz-upload [nzBeforeUpload]="beforeUpload" [(nzFileList)]="fileList" [nzMultiple]="true"
+                                    [nzLimit]="5">
                                     <button nz-button type="button" nzSize="large" style="width: 100%;">
                                         <span nz-icon nzType="upload"></span>
-                                        Upload Image
+                                        Upload Images (Max 5)
                                     </button>
                                 </nz-upload>
                             </nz-form-control>

@@ -14,8 +14,12 @@
                 <nz-descriptions-item nzTitle="Created At">
                     {{ issue.createdAt | date:'medium' }}
                 </nz-descriptions-item>
-                <nz-descriptions-item nzTitle="Image" *ngIf="issue.imageUrl">
-                    <img nz-image width="200px" [nzSrc]="'http://localhost:3000' + issue.imageUrl" alt="Issue Image" />
+                <nz-descriptions-item nzTitle="Images" *ngIf="issue.images && issue.images.length > 0">
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <img *ngFor="let img of issue.images" nz-image width="100px" height="100px"
+                            [nzSrc]="'http://localhost:3000' + img" alt="Issue Image"
+                            style="object-fit: cover; border-radius: 4px;" />
+                    </div>
                 </nz-descriptions-item>
             </nz-descriptions>
 
@@ -35,71 +39,31 @@
                 </div>
 
                 <div class="action-group">
-                    <nz-drawer [nzVisible]="visible" [nzWidth]="640" [nzTitle]="issue?.title || 'Issue Details'"
-                        (nzOnClose)="onClose()">
-                        <ng-container *nzDrawerContent>
-                            <div *ngIf="issue">
-                                <nz-descriptions [nzColumn]="1" nzBordered>
-                                    <nz-descriptions-item nzTitle="Description">
-                                        {{ issue.description }}
-                                    </nz-descriptions-item>
-                                    <nz-descriptions-item nzTitle="Priority">
-                                        <nz-tag [nzColor]="getPriorityColor(issue.priority)">{{ issue.priority
-                                            }}</nz-tag>
-                                    </nz-descriptions-item>
-                                    <nz-descriptions-item nzTitle="Reporter">
-                                        {{ issue.reporterId }} <!-- TODO: Show Name -->
-                                    </nz-descriptions-item>
-                                    <nz-descriptions-item nzTitle="Created At">
-                                        {{ issue.createdAt | date:'medium' }}
-                                    </nz-descriptions-item>
-                                    <nz-descriptions-item nzTitle="Image" *ngIf="issue.imageUrl">
-                                        <img nz-image width="200px" [nzSrc]="'http://localhost:3000' + issue.imageUrl"
-                                            alt="Issue Image" />
-                                    </nz-descriptions-item>
-                                </nz-descriptions>
+                    <label>Update Status:</label>
+                    <div class="action-controls">
+                        <nz-select [(ngModel)]="selectedStatus" style="width: 200px;" nzPlaceHolder="Select Status">
+                            <nz-option *ngFor="let s of statuses" [nzValue]="s" [nzLabel]="s"></nz-option>
+                        </nz-select>
+                        <button nz-button nzType="primary" (click)="updateStatus()"
+                            [nzLoading]="isLoading">Update</button>
+                    </div>
+                </div>
+            </div>
 
-                                <div class="actions-section">
-                                    <h3>Management Actions</h3>
+            <div *ngIf="issue.images && issue.images.length > 0" class="image-container">
+                <h3>Attached Images</h3>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <img *ngFor="let img of issue.images" nz-image width="150px" [nzSrc]="'http://localhost:3000' + img"
+                        alt="Issue Image" style="border-radius: 4px;" />
+                </div>
+            </div>
 
-                                    <div class="action-group">
-                                        <label>Assign To:</label>
-                                        <div class="action-controls">
-                                            <nz-select [(ngModel)]="selectedAssignee" style="width: 200px;"
-                                                nzPlaceHolder="Select Employee">
-                                                <nz-option *ngFor="let emp of employees" [nzValue]="emp.id"
-                                                    [nzLabel]="emp.name"></nz-option>
-                                            </nz-select>
-                                            <button nz-button nzType="primary" (click)="assignIssue()"
-                                                [nzLoading]="isLoading">Assign</button>
-                                        </div>
-                                    </div>
+            <nz-divider></nz-divider>
 
-                                    <div class="action-group">
-                                        <label>Update Status:</label>
-                                        <div class="action-controls">
-                                            <nz-select [(ngModel)]="selectedStatus" style="width: 200px;"
-                                                nzPlaceHolder="Select Status">
-                                                <nz-option *ngFor="let s of statuses" [nzValue]="s"
-                                                    [nzLabel]="s"></nz-option>
-                                            </nz-select>
-                                            <button nz-button nzType="primary" (click)="updateStatus()"
-                                                [nzLoading]="isLoading">Update</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div *ngIf="issue.imageUrl" class="image-container">
-                                    <h3>Attached Image</h3>
-                                    <img nz-image [nzSrc]="issue.imageUrl" alt="Issue Image" />
-                                </div>
-
-                                <nz-divider></nz-divider>
-
-                                <div class="comments-section">
-                                    <h3>Comments</h3>
-                                    <app-comment-list [issueId]="issue.id"></app-comment-list>
-                                </div>
-                            </div>
-                        </ng-container>
-                    </nz-drawer>
+            <div class="comments-section">
+                <h3>Comments</h3>
+                <app-comment-list [issueId]="issue.id"></app-comment-list>
+            </div>
+        </div>
+    </ng-container>
+</nz-drawer>

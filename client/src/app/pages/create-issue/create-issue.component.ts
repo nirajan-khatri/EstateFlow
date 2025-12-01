@@ -24,7 +24,6 @@ import { Priority } from '../../models/issue.model';
     NzInputModule,
     NzButtonModule,
     NzSelectModule,
-    NzSelectModule,
     NzUploadModule,
     NzCardModule,
     NzGridModule
@@ -36,7 +35,6 @@ export class CreateIssueComponent {
   issueForm: FormGroup;
   isLoading = false;
   fileList: NzUploadFile[] = [];
-  selectedFile: File | undefined;
   priorities = Object.values(Priority);
 
   constructor(
@@ -54,14 +52,15 @@ export class CreateIssueComponent {
 
   beforeUpload = (file: NzUploadFile): boolean => {
     this.fileList = this.fileList.concat(file);
-    this.selectedFile = file as unknown as File;
     return false; // Prevent automatic upload
   };
 
   submitForm(): void {
     if (this.issueForm.valid) {
       this.isLoading = true;
-      this.issueService.createIssue(this.issueForm.value, this.selectedFile).subscribe({
+      const files = this.fileList.map(f => f as unknown as File);
+
+      this.issueService.createIssue(this.issueForm.value, files).subscribe({
         next: () => {
           this.message.success('Issue reported successfully');
           this.router.navigate(['/issues']);

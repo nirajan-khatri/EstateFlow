@@ -8,8 +8,8 @@ const router = Router();
 // Apply authentication to all issue routes
 router.use(authenticate);
 
-// POST /api/issues - Create a new issue (with image upload)
-router.post('/', upload.single('image'), createIssue);
+// POST /api/issues - Create a new issue (with multiple image upload)
+router.post('/', upload.array('images', 5), createIssue);
 
 // GET /api/issues/all - Get all issues (Manager only)
 router.get('/all', authorize('MANAGER'), getAllIssues);

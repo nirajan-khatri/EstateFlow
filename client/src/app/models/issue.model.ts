@@ -18,7 +18,7 @@ export interface Issue {
     description: string;
     priority: Priority;
     status: IssueStatus;
-    imageUrl?: string;
+    images?: string[];
     reporterId: string;
     assigneeId?: string;
     createdAt: Date;

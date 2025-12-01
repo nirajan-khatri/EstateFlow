@@ -12,7 +12,8 @@ export const createIssue = async (req: Request, res: Response, next: NextFunctio
             return res.status(401).json({ message: 'Unauthorized' });
         }
 
-        const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+        const files = req.files as Express.Multer.File[];
+        const images = files ? files.map(file => `/uploads/${file.filename}`) : [];
 
         const issue = await prisma.issue.create({
             data: {
@@ -20,7 +21,7 @@ export const createIssue = async (req: Request, res: Response, next: NextFunctio
                 description,
                 priority: priority || 'MEDIUM',
                 status: 'OPEN',
-                imageUrl,
+                images,
                 reporterId: userId
             }
         });
