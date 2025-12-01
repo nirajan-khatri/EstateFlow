@@ -30,8 +30,33 @@ app.use('/api', routes);
 
 app.use(errorHandler);
 
+import { Server } from 'socket.io';
+
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+});
+
+export const io = new Server(server, {
+  cors: {
+    origin: true,
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
+
+io.on('connection', (socket) => {
+  const userId = socket.handshake.query.userId as string;
+
+  if (userId) {
+    socket.join(userId);
+    console.log(`User ${userId} connected and joined room`);
+  } else {
+    console.log('A user connected without ID:', socket.id);
+  }
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
 });
 
 process.on('uncaughtException', (err) => {

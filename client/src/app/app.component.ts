@@ -8,7 +8,10 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { AuthService, User } from './services/auth.service';
+import { SocketService } from './services/socket.service';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { Observable } from 'rxjs';
+import { OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -27,11 +30,31 @@ import { Observable } from 'rxjs';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   currentUser$: Observable<User | null>;
 
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    private socketService: SocketService,
+    private notification: NzNotificationService
+  ) {
     this.currentUser$ = this.authService.currentUser$;
+  }
+
+  ngOnInit(): void {
+    this.socketService.on('issue:assigned').subscribe((issue) => {
+      this.notification.info(
+        'New Assignment',
+        `Issue "${issue.title}" has been assigned.`
+      );
+    });
+
+    this.socketService.on('issue:status_change').subscribe((issue) => {
+      this.notification.info(
+        'Status Update',
+        `Issue "${issue.title}" status changed to ${issue.status}.`
+      );
+    });
   }
 
   logout(): void {

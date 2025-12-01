@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
+import { io } from '../index';
 
 export const createIssue = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -130,6 +131,10 @@ export const assignIssue = async (req: Request, res: Response, next: NextFunctio
             }
         });
 
+        if (assigneeId) {
+            io.to(assigneeId).emit('issue:assigned', issue);
+        }
+
         res.json(issue);
     } catch (error) {
         next(error);
@@ -154,6 +159,14 @@ export const updateIssueStatus = async (req: Request, res: Response, next: NextF
                     }
                 }
             }
+        });
+
+        const recipients = new Set<string>();
+        if (issue.assigneeId) recipients.add(issue.assigneeId);
+        recipients.add(issue.reporterId);
+
+        recipients.forEach(recipientId => {
+            io.to(recipientId).emit('issue:status_change', issue);
         });
 
         res.json(issue);
