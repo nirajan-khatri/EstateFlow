@@ -57,7 +57,3 @@ export const login = tryCatch(async (req: Request, res: Response) => {
     }
 });
 
-export const getEmployees = tryCatch(async (req: Request, res: Response) => {
-    const employees = await AuthService.getEmployees();
-    res.json(employees);
-});

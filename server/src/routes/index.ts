@@ -2,12 +2,13 @@ import { Router } from 'express';
 import authRoutes from './auth.routes';
 import issuesRoutes from './issues.routes';
 import dashboardRoutes from './dashboard.routes';
-
 import commentsRoutes from './comments.routes';
+import usersRoutes from './users.routes';
 
 const router = Router();
 
 router.use('/auth', authRoutes);
+router.use('/users', usersRoutes);
 router.use('/dashboard', dashboardRoutes);
 
 // Specific routes first

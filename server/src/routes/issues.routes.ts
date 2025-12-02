@@ -8,34 +8,196 @@ import { CreateIssueDto, AssignIssueDto, UpdateStatusDto } from '../dtos/issue.d
 
 const router = Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Issues
+ *   description: Issue management endpoints
+ */
+
 // Apply authentication to all issue routes
 router.use(authenticate);
 
-// POST /api/issues - Create a new issue (with multiple image upload)
-// Note: Validation for multipart/form-data is tricky with class-validator directly on body. 
-// We might need to manually validate or parse body first. For now, let's keep it simple or skip validation for file upload route if complex.
-// Actually, req.body will contain text fields after multer.
+/**
+ * @swagger
+ * /issues:
+ *   post:
+ *     summary: Create a new issue
+ *     tags: [Issues]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               priority:
+ *                 type: string
+ *                 enum: [LOW, MEDIUM, HIGH, CRITICAL]
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *     responses:
+ *       201:
+ *         description: Issue created successfully
+ */
 router.post('/', upload.array('images', 5), validateRequest(CreateIssueDto), createIssue);
 
-// GET /api/issues/all - Get all issues (Manager only)
+/**
+ * @swagger
+ * /issues/all:
+ *   get:
+ *     summary: Get all issues (Manager only)
+ *     tags: [Issues]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all issues
+ *       403:
+ *         description: Forbidden (Managers only)
+ */
 router.get('/all', authorize('MANAGER'), getAllIssues);
 
-// GET /api/issues - Get issues reported by the current user
+/**
+ * @swagger
+ * /issues:
+ *   get:
+ *     summary: Get issues reported by current user
+ *     tags: [Issues]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of reported issues
+ */
 router.get('/', getMyIssues);
 
-// GET /api/issues/assigned - Get issues assigned to the current user
+/**
+ * @swagger
+ * /issues/assigned:
+ *   get:
+ *     summary: Get issues assigned to current user
+ *     tags: [Issues]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of assigned issues
+ */
 router.get('/assigned', getAssignedIssues);
 
-// GET /api/issues/:id - Get specific issue details
+/**
+ * @swagger
+ * /issues/{id}:
+ *   get:
+ *     summary: Get issue details
+ *     tags: [Issues]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Issue details
+ *       404:
+ *         description: Issue not found
+ */
 router.get('/:id', getIssueById);
 
-// GET /api/issues/:id/history - Get issue history
+/**
+ * @swagger
+ * /issues/{id}/history:
+ *   get:
+ *     summary: Get issue history
+ *     tags: [Issues]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Issue history
+ */
 router.get('/:id/history', getIssueHistory);
 
-// PATCH /api/issues/:id/assign - Assign issue (Manager only)
+/**
+ * @swagger
+ * /issues/{id}/assign:
+ *   patch:
+ *     summary: Assign issue to an employee (Manager only)
+ *     tags: [Issues]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               assigneeId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Issue assigned successfully
+ *       403:
+ *         description: Forbidden
+ */
 router.patch('/:id/assign', authorize('MANAGER'), validateRequest(AssignIssueDto), assignIssue);
 
-// PATCH /api/issues/:id/status - Update status (Manager only)
+/**
+ * @swagger
+ * /issues/{id}/status:
+ *   patch:
+ *     summary: Update issue status (Manager only)
+ *     tags: [Issues]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [OPEN, IN_PROGRESS, RESOLVED, CLOSED]
+ *     responses:
+ *       200:
+ *         description: Status updated successfully
+ *       403:
+ *         description: Forbidden
+ */
 router.patch('/:id/status', authorize('MANAGER'), validateRequest(UpdateStatusDto), updateIssueStatus);
 
 export default router;

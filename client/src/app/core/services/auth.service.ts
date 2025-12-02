@@ -84,6 +84,6 @@ export class AuthService {
   }
 
   getEmployees(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/employees`);
+    return this.http.get<User[]>('http://localhost:3000/api/users/employees');
   }
 }

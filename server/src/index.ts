@@ -31,6 +31,11 @@ app.get('/', (req, res) => {
   res.send('Property Management API is running');
 });
 
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger';
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 app.use('/api', routes);
 
 app.use(errorHandler);
