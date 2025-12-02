@@ -20,7 +20,9 @@ export interface Issue {
     status: IssueStatus;
     images?: string[];
     reporterId: string;
+    reporter?: { name: string; email: string };
     assigneeId?: string;
+    assignee?: { name: string; email: string };
     createdAt: Date;
     updatedAt: Date;
 }

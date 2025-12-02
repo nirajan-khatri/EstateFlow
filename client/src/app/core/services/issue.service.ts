@@ -50,6 +50,14 @@ export class IssueService {
     );
   }
 
+  getAssignedIssues(): Observable<Issue[]> {
+    this.loadingSignal.set(true);
+    return this.http.get<Issue[]>(`${this.apiUrl}/assigned`).pipe(
+      tap(issues => this.issuesSignal.set(issues)),
+      finalize(() => this.loadingSignal.set(false))
+    );
+  }
+
   getIssueById(id: string): Observable<Issue> {
     return this.http.get<Issue>(`${this.apiUrl}/${id}`);
   }

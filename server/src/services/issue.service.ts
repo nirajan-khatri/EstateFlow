@@ -24,6 +24,21 @@ export class IssueService {
     static async getMyIssues(userId: string) {
         return prisma.issue.findMany({
             where: { reporterId: userId },
+            include: {
+                reporter: { select: { name: true, email: true } },
+                assignee: { select: { name: true, email: true } }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+    }
+
+    static async getAssignedIssues(userId: string) {
+        return prisma.issue.findMany({
+            where: { assigneeId: userId },
+            include: {
+                reporter: { select: { name: true, email: true } },
+                assignee: { select: { name: true, email: true } }
+            },
             orderBy: { createdAt: 'desc' }
         });
     }

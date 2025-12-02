@@ -9,7 +9,7 @@
                     <nz-tag [nzColor]="getPriorityColor(issue.priority)">{{ issue.priority }}</nz-tag>
                 </nz-descriptions-item>
                 <nz-descriptions-item nzTitle="Reporter">
-                    {{ issue.reporterId }} <!-- TODO: Show Name -->
+                    {{ issue.reporter?.name || issue.reporterId }}
                 </nz-descriptions-item>
                 <nz-descriptions-item nzTitle="Created At">
                     {{ issue.createdAt | date:'medium' }}

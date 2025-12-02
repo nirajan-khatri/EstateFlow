@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticate, authorize } from '../middleware/auth';
 import { upload } from '../middleware/upload';
-import { createIssue, getMyIssues, getIssueById, getAllIssues, assignIssue, updateIssueStatus, getIssueHistory } from '../controllers/issues.controller';
+import { createIssue, getMyIssues, getAssignedIssues, getIssueById, getAllIssues, assignIssue, updateIssueStatus, getIssueHistory } from '../controllers/issues.controller';
 
 import { validateRequest } from '../middleware/validateRequest';
 import { CreateIssueDto, AssignIssueDto, UpdateStatusDto } from '../dtos/issue.dto';
@@ -22,6 +22,9 @@ router.get('/all', authorize('MANAGER'), getAllIssues);
 
 // GET /api/issues - Get issues reported by the current user
 router.get('/', getMyIssues);
+
+// GET /api/issues/assigned - Get issues assigned to the current user
+router.get('/assigned', getAssignedIssues);
 
 // GET /api/issues/:id - Get specific issue details
 router.get('/:id', getIssueById);

@@ -78,7 +78,7 @@ export class IssueDetailsDrawerComponent implements OnChanges {
 
     this.isLoading.set(true);
     this.issueService.assignIssue(this.issue.id, this.selectedAssignee).subscribe({
-      next: (updatedIssue) => {
+      next: (updatedIssue: Issue) => {
         this.message.success('Issue assigned successfully');
         this.issueUpdated.emit(updatedIssue);
         this.loadAuditLogs();
@@ -96,7 +96,7 @@ export class IssueDetailsDrawerComponent implements OnChanges {
 
     this.isLoading.set(true);
     this.issueService.updateStatus(this.issue.id, this.selectedStatus).subscribe({
-      next: (updatedIssue) => {
+      next: (updatedIssue: Issue) => {
         this.message.success('Status updated successfully');
         this.issueUpdated.emit(updatedIssue);
         this.loadAuditLogs();

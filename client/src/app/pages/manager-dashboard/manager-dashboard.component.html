@@ -78,9 +78,8 @@
                 @for (data of basicTable.data; track data.id) {
                 <tr>
                     <td>{{ data.title }}</td>
-                    <td>{{ data.reporterId }}</td>
-                    <!-- Ideally show name, need to update Issue interface to include relations -->
-                    <td>{{ data.assigneeId || 'Unassigned' }}</td>
+                    <td>{{ data.reporter?.name || data.reporterId }}</td>
+                    <td>{{ data.assignee?.name || 'Unassigned' }}</td>
                     <td>
                         <nz-tag [nzColor]="getPriorityColor(data.priority)">{{ data.priority }}</nz-tag>
                     </td>

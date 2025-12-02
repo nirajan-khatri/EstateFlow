@@ -10,7 +10,10 @@
 
             <ul nz-menu nzMode="horizontal" class="nav-menu">
                 <li nz-menu-item routerLink="/issues" nzMatchRouter *ngIf="user.role === 'EMPLOYEE'">
-                    <span nz-icon nzType="unordered-list"></span> My Issues
+                    <span nz-icon nzType="unordered-list"></span> My Reported Issues
+                </li>
+                <li nz-menu-item routerLink="/issues/assigned" nzMatchRouter>
+                    <span nz-icon nzType="check-circle"></span> Assigned to Me
                 </li>
                 <li nz-menu-item routerLink="/dashboard" nzMatchRouter *ngIf="user.role === 'MANAGER'">
                     <span nz-icon nzType="control"></span> Manager Dashboard

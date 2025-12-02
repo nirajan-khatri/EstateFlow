@@ -28,6 +28,14 @@ export const getMyIssues = tryCatch(async (req: Request, res: Response) => {
     res.json(issues);
 });
 
+export const getAssignedIssues = tryCatch(async (req: Request, res: Response) => {
+    const userId = req.user?.userId;
+    if (!userId) throw new AppError('Unauthorized', 401);
+
+    const issues = await IssueService.getAssignedIssues(userId);
+    res.json(issues);
+});
+
 export const getIssueById = tryCatch(async (req: Request, res: Response) => {
     const { id } = req.params;
     const userId = req.user?.userId;

@@ -19,6 +19,10 @@ export const routes: Routes = [
             {
                 path: 'create',
                 loadComponent: () => import('./pages/create-issue/create-issue.component').then(m => m.CreateIssueComponent)
+            },
+            {
+                path: 'assigned',
+                loadComponent: () => import('./pages/assigned-issues/assigned-issues.component').then(m => m.AssignedIssuesComponent)
             }
         ]
     },
