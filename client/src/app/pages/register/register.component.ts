@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -8,7 +8,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -24,11 +24,12 @@ import { AuthService } from '../../services/auth.service';
     NzSelectModule
   ],
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss']
+  styleUrls: ['./register.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RegisterComponent {
   registerForm: FormGroup;
-  isLoading = false;
+  isLoading = signal<boolean>(false);
 
   constructor(
     private fb: FormBuilder,
@@ -46,7 +47,7 @@ export class RegisterComponent {
 
   submitForm(): void {
     if (this.registerForm.valid) {
-      this.isLoading = true;
+      this.isLoading.set(true);
       this.authService.register(this.registerForm.value).subscribe({
         next: () => {
           this.message.success('Registration successful');
@@ -54,7 +55,7 @@ export class RegisterComponent {
         },
         error: (err) => {
           this.message.error(err.error?.message || 'Registration failed');
-          this.isLoading = false;
+          this.isLoading.set(false);
         }
       });
     } else {

@@ -8,8 +8,17 @@ import commentsRoutes from './comments.routes';
 const router = Router();
 
 router.use('/auth', authRoutes);
-router.use('/issues', issuesRoutes);
 router.use('/dashboard', dashboardRoutes);
-router.use('/issues/:issueId/comments', commentsRoutes);
+
+// Specific routes first
+router.use('/issues/:issueId/comments', (req, res, next) => {
+    console.log('Request to /issues/:issueId/comments', req.method, req.url);
+    next();
+}, commentsRoutes);
+
+router.use('/issues', (req, res, next) => {
+    console.log('Request to /issues', req.method, req.url);
+    next();
+}, issuesRoutes);
 
 export default router;

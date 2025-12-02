@@ -15,12 +15,12 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
-import { IssueService } from '../../services/issue.service';
-import { AuthService, User } from '../../services/auth.service';
-import { DashboardService, DashboardStats } from '../../services/dashboard.service';
-import { SocketService } from '../../services/socket.service';
+import { IssueService } from '../../core/services/issue.service';
+import { AuthService, User } from '../../core/services/auth.service';
+import { DashboardService, DashboardStats } from '../../core/services/dashboard.service';
+import { SocketService } from '../../core/services/socket.service';
 import { Issue, Priority, IssueStatus } from '../../models/issue.model';
-import { IssueDetailsDrawerComponent } from '../../components/issue-details-drawer/issue-details-drawer.component';
+import { IssueDetailsDrawerComponent } from '../../shared/components/issue-details-drawer/issue-details-drawer.component';
 
 @Component({
   selector: 'app-manager-dashboard',
@@ -73,7 +73,7 @@ export class ManagerDashboardComponent implements OnInit {
   employees: User[] = [];
 
   // Analytics Data
-  stats: DashboardStats | null = null;
+  stats = signal<DashboardStats | null>(null);
   dateRange: Date[] = [];
 
   // Bar Chart (Status)
@@ -96,6 +96,8 @@ export class ManagerDashboardComponent implements OnInit {
   // Drawer
   drawerVisible = false;
   selectedIssue: Issue | null = null;
+
+  constructor() { }
 
   ngOnInit(): void {
     this.issueService.getAllIssues().subscribe();
@@ -125,7 +127,7 @@ export class ManagerDashboardComponent implements OnInit {
 
     this.dashboardService.getStats(startDate, endDate).subscribe({
       next: (data) => {
-        this.stats = data;
+        this.stats.set(data);
         this.updateCharts(data);
       },
       error: (err) => console.error('Failed to load stats', err)
@@ -150,9 +152,10 @@ export class ManagerDashboardComponent implements OnInit {
   }
 
   exportToCSV(): void {
-    if (!this.stats || !this.stats.recentIssues) return;
+    const currentStats = this.stats();
+    if (!currentStats || !currentStats.recentIssues) return;
 
-    const issues = this.stats.recentIssues;
+    const issues = currentStats.recentIssues;
     const headers = ['Title', 'Description', 'Priority', 'Status', 'Reporter', 'Assignee', 'Created At'];
 
     const csvContent = [

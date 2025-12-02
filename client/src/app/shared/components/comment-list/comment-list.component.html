@@ -1,4 +1,4 @@
-<nz-list [nzDataSource]="comments" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
+<nz-list [nzDataSource]="comments()" [nzRenderItem]="item" [nzItemLayout]="'horizontal'">
     <ng-template #item let-item>
         <nz-comment [nzAuthor]="item.user.name" [nzDatetime]="(item.createdAt | date:'short') || ''">
             <nz-avatar nz-comment-avatar nzIcon="user" [nzSrc]="item.user.avatar"></nz-avatar>
@@ -13,10 +13,11 @@
     <nz-avatar nz-comment-avatar nzIcon="user" [nzSrc]="user?.avatar"></nz-avatar>
     <nz-comment-content>
         <nz-form-item>
-            <textarea nz-input [(ngModel)]="newCommentContent" [nzAutosize]="{ minRows: 2, maxRows: 4 }"></textarea>
+            <textarea nz-input [ngModel]="newCommentContent()" (ngModelChange)="newCommentContent.set($event)"
+                [nzAutosize]="{ minRows: 2, maxRows: 4 }"></textarea>
         </nz-form-item>
         <nz-form-item>
-            <button nz-button nzType="primary" [nzLoading]="submitting" [disabled]="!newCommentContent"
+            <button nz-button nzType="primary" [nzLoading]="submitting()" [disabled]="!newCommentContent()"
                 (click)="submitComment()">
                 Add Comment
             </button>

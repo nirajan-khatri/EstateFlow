@@ -10,9 +10,9 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzImageModule } from 'ng-zorro-antd/image';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzTimelineModule } from 'ng-zorro-antd/timeline';
-import { Issue, IssueStatus, Priority, AuditLog } from '../../models/issue.model';
-import { User } from '../../services/auth.service';
-import { IssueService } from '../../services/issue.service';
+import { Issue, IssueStatus, Priority, AuditLog } from '../../../models/issue.model';
+import { User } from '../../../core/services/auth.service';
+import { IssueService } from '../../../core/services/issue.service';
 import { CommentListComponent } from '../comment-list/comment-list.component';
 
 @Component({

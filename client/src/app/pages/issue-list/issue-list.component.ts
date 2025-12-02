@@ -7,9 +7,9 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { IssueService } from '../../services/issue.service';
+import { IssueService } from '../../core/services/issue.service';
 import { Issue, Priority, IssueStatus } from '../../models/issue.model';
-import { IssueDetailsDrawerComponent } from '../../components/issue-details-drawer/issue-details-drawer.component';
+import { IssueDetailsDrawerComponent } from '../../shared/components/issue-details-drawer/issue-details-drawer.component';
 
 @Component({
   selector: 'app-issue-list',

@@ -10,7 +10,7 @@ import { NzUploadModule, NzUploadFile } from 'ng-zorro-antd/upload';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzGridModule } from 'ng-zorro-antd/grid';
-import { IssueService } from '../../services/issue.service';
+import { IssueService } from '../../core/services/issue.service';
 import { Priority } from '../../models/issue.model';
 
 @Component({

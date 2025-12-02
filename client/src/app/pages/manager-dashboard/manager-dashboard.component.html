@@ -1,6 +1,6 @@
 <div class="manager-dashboard-container">
     <!-- Analytics Section -->
-    @if (stats) {
+    @if (stats()) {
     <div class="analytics-section" style="margin-bottom: 24px;">
         <div class="dashboard-header"
             style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
@@ -15,7 +15,7 @@
         <div nz-row [nzGutter]="16" style="margin-bottom: 16px;">
             <div nz-col [nzSpan]="24">
                 <nz-card>
-                    <nz-statistic [nzValue]="stats.totalIssues" [nzTitle]="'Total Issues'"></nz-statistic>
+                    <nz-statistic [nzValue]="stats()?.totalIssues" [nzTitle]="'Total Issues'"></nz-statistic>
                 </nz-card>
             </div>
         </div>

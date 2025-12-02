@@ -1,7 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, finalize } from 'rxjs';
-import { Issue } from '../models/issue.model';
+import { Issue } from '../../models/issue.model';
 
 @Injectable({
   providedIn: 'root'

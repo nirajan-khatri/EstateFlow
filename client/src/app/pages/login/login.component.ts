@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -8,7 +8,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -24,11 +24,12 @@ import { AuthService } from '../../services/auth.service';
     NzCheckboxModule
   ],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginComponent {
   loginForm: FormGroup;
-  isLoading = false;
+  isLoading = signal<boolean>(false);
 
   constructor(
     private fb: FormBuilder,
@@ -45,7 +46,7 @@ export class LoginComponent {
 
   submitForm(): void {
     if (this.loginForm.valid) {
-      this.isLoading = true;
+      this.isLoading.set(true);
       this.authService.login(this.loginForm.value).subscribe({
         next: () => {
           this.message.success('Login successful');
@@ -53,7 +54,7 @@ export class LoginComponent {
         },
         error: (err) => {
           this.message.error(err.error?.message || 'Login failed');
-          this.isLoading = false;
+          this.isLoading.set(false);
         }
       });
     } else {

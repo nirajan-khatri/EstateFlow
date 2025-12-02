@@ -67,7 +67,7 @@
                 <nz-timeline>
                     @for (log of auditLogs(); track log.id) {
                     <nz-timeline-item [nzColor]="'blue'">
-                        <p><strong>{{ log.action }}</strong> by {{ log.user?.name }} - {{ log.createdAt | date:'short'
+                        <p><strong>{{ log.action }}</strong> by {{ log.user.name }} - {{ log.createdAt | date:'short'
                             }}</p>
                         @if (log.details) {
                         <p>{{ log.details }}</p>

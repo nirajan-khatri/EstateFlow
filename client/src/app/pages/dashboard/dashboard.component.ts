@@ -10,8 +10,8 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { FormsModule } from '@angular/forms';
-import { DashboardService, DashboardStats } from '../../services/dashboard.service';
-import { SocketService } from '../../services/socket.service';
+import { DashboardService, DashboardStats } from '../../core/services/dashboard.service';
+import { SocketService } from '../../core/services/socket.service';
 
 @Component({
   selector: 'app-dashboard',
