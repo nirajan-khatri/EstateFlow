@@ -9,10 +9,10 @@
             </div>
 
             <ul nz-menu nzMode="horizontal" class="nav-menu">
-                <li nz-menu-item routerLink="/issues" nzMatchRouter *ngIf="user.role === 'EMPLOYEE'">
+                <li nz-menu-item routerLink="/issues" nzMatchRouter [nzMatchRouterExact]="true">
                     <span nz-icon nzType="unordered-list"></span> My Reported Issues
                 </li>
-                <li nz-menu-item routerLink="/issues/assigned" nzMatchRouter>
+                <li nz-menu-item routerLink="/issues/assigned" nzMatchRouter *ngIf="user.role === 'EMPLOYEE'">
                     <span nz-icon nzType="check-circle"></span> Assigned to Me
                 </li>
                 <li nz-menu-item routerLink="/dashboard" nzMatchRouter *ngIf="user.role === 'MANAGER'">
