@@ -38,8 +38,8 @@ export class AuthService {
     const user = localStorage.getItem('user');
     if (user) {
       const parsedUser = JSON.parse(user);
-      this.currentUserSubject.next(parsedUser);
       this.socketService.connect(parsedUser.id);
+      this.currentUserSubject.next(parsedUser);
     }
   }
 
@@ -66,8 +66,8 @@ export class AuthService {
   private handleAuthSuccess(response: AuthResponse): void {
     localStorage.setItem('token', response.token);
     localStorage.setItem('user', JSON.stringify(response.user));
-    this.currentUserSubject.next(response.user);
     this.socketService.connect(response.user.id);
+    this.currentUserSubject.next(response.user);
   }
 
   getToken(): string | null {

@@ -53,7 +53,7 @@ export class RegisterComponent {
           this.message.success('Registration successful');
           this.router.navigate(['/']);
         },
-        error: (err) => {
+        error: (err: any) => {
           this.message.error(err.error?.message || 'Registration failed');
           this.isLoading.set(false);
         }

@@ -10,7 +10,7 @@ import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { AuthService, User } from './core/services/auth.service';
 import { SocketService } from './core/services/socket.service';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 import { OnInit } from '@angular/core';
 
 @Component({
@@ -42,14 +42,20 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.socketService.on('issue:assigned').subscribe((issue) => {
+    // Subscribe to assignments
+    this.authService.currentUser$.pipe(
+      switchMap(user => user ? this.socketService.on('issue:assigned') : [])
+    ).subscribe((issue) => {
       this.notification.info(
         'New Assignment',
         `Issue "${issue.title}" has been assigned.`
       );
     });
 
-    this.socketService.on('issue:status_change').subscribe((issue) => {
+    // Subscribe to status changes
+    this.authService.currentUser$.pipe(
+      switchMap(user => user ? this.socketService.on('issue:status_change') : [])
+    ).subscribe((issue) => {
       this.notification.info(
         'Status Update',
         `Issue "${issue.title}" status changed to ${issue.status}.`

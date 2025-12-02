@@ -52,7 +52,7 @@ export class LoginComponent {
           this.message.success('Login successful');
           this.router.navigate(['/']);
         },
-        error: (err) => {
+        error: (err: any) => {
           this.message.error(err.error?.message || 'Login failed');
           this.isLoading.set(false);
         }
