@@ -1,0 +1,108 @@
+<div class="kanban-container">
+    <div class="kanban-header">
+        <h1>Issue Board</h1>
+        <nz-tag [nzColor]="'blue'">Drag and drop issues to update status</nz-tag>
+    </div>
+
+    <div class="board-columns" cdkDropListGroup>
+        <!-- OPEN Column -->
+        <div class="board-column">
+            <div class="column-header status-open">
+                <h2>OPEN</h2>
+                <span class="count">{{ openIssues().length }}</span>
+            </div>
+            <div cdkDropList id="OPEN" [cdkDropListData]="openIssues()" class="issue-list"
+                (cdkDropListDropped)="drop($event)">
+                <div class="issue-card" *ngFor="let issue of openIssues()" cdkDrag>
+                    <nz-card [nzBordered]="false" class="card-content">
+                        <div class="card-header">
+                            <span class="issue-id">#{{ issue.id.substring(0, 8) }}</span>
+                            <nz-tag [nzColor]="getPriorityColor(issue.priority)">{{ issue.priority }}</nz-tag>
+                        </div>
+                        <h4 class="issue-title">{{ issue.title }}</h4>
+                        <div class="card-footer">
+                            <nz-avatar nzSize="small" nzIcon="user"
+                                [nzSrc]="issue.assignee?.name ? undefined : ''"></nz-avatar>
+                            <span class="assignee-name">{{ issue.assignee?.name || 'Unassigned' }}</span>
+                        </div>
+                    </nz-card>
+                </div>
+            </div>
+        </div>
+
+        <!-- IN_PROGRESS Column -->
+        <div class="board-column">
+            <div class="column-header status-progress">
+                <h2>IN PROGRESS</h2>
+                <span class="count">{{ inProgressIssues().length }}</span>
+            </div>
+            <div cdkDropList id="IN_PROGRESS" [cdkDropListData]="inProgressIssues()" class="issue-list"
+                (cdkDropListDropped)="drop($event)">
+                <div class="issue-card" *ngFor="let issue of inProgressIssues()" cdkDrag>
+                    <nz-card [nzBordered]="false" class="card-content">
+                        <div class="card-header">
+                            <span class="issue-id">#{{ issue.id.substring(0, 8) }}</span>
+                            <nz-tag [nzColor]="getPriorityColor(issue.priority)">{{ issue.priority }}</nz-tag>
+                        </div>
+                        <h4 class="issue-title">{{ issue.title }}</h4>
+                        <div class="card-footer">
+                            <nz-avatar nzSize="small" nzIcon="user"
+                                [nzSrc]="issue.assignee?.name ? undefined : ''"></nz-avatar>
+                            <span class="assignee-name">{{ issue.assignee?.name || 'Unassigned' }}</span>
+                        </div>
+                    </nz-card>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESOLVED Column -->
+        <div class="board-column">
+            <div class="column-header status-resolved">
+                <h2>RESOLVED</h2>
+                <span class="count">{{ resolvedIssues().length }}</span>
+            </div>
+            <div cdkDropList id="RESOLVED" [cdkDropListData]="resolvedIssues()" class="issue-list"
+                (cdkDropListDropped)="drop($event)">
+                <div class="issue-card" *ngFor="let issue of resolvedIssues()" cdkDrag>
+                    <nz-card [nzBordered]="false" class="card-content">
+                        <div class="card-header">
+                            <span class="issue-id">#{{ issue.id.substring(0, 8) }}</span>
+                            <nz-tag [nzColor]="getPriorityColor(issue.priority)">{{ issue.priority }}</nz-tag>
+                        </div>
+                        <h4 class="issue-title">{{ issue.title }}</h4>
+                        <div class="card-footer">
+                            <nz-avatar nzSize="small" nzIcon="user"
+                                [nzSrc]="issue.assignee?.name ? undefined : ''"></nz-avatar>
+                            <span class="assignee-name">{{ issue.assignee?.name || 'Unassigned' }}</span>
+                        </div>
+                    </nz-card>
+                </div>
+            </div>
+        </div>
+
+        <!-- CLOSED Column -->
+        <div class="board-column">
+            <div class="column-header status-closed">
+                <h2>CLOSED</h2>
+                <span class="count">{{ closedIssues().length }}</span>
+            </div>
+            <div cdkDropList id="CLOSED" [cdkDropListData]="closedIssues()" class="issue-list"
+                (cdkDropListDropped)="drop($event)">
+                <div class="issue-card" *ngFor="let issue of closedIssues()" cdkDrag>
+                    <nz-card [nzBordered]="false" class="card-content">
+                        <div class="card-header">
+                            <span class="issue-id">#{{ issue.id.substring(0, 8) }}</span>
+                            <nz-tag [nzColor]="getPriorityColor(issue.priority)">{{ issue.priority }}</nz-tag>
+                        </div>
+                        <h4 class="issue-title">{{ issue.title }}</h4>
+                        <div class="card-footer">
+                            <nz-avatar nzSize="small" nzIcon="user"
+                                [nzSrc]="issue.assignee?.name ? undefined : ''"></nz-avatar>
+                            <span class="assignee-name">{{ issue.assignee?.name || 'Unassigned' }}</span>
+                        </div>
+                    </nz-card>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

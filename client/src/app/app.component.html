@@ -18,6 +18,9 @@
                 <li nz-menu-item routerLink="/dashboard" nzMatchRouter *ngIf="user.role === 'MANAGER'">
                     <span nz-icon nzType="control"></span> Manager Dashboard
                 </li>
+                <li nz-menu-item routerLink="/kanban" nzMatchRouter *ngIf="user.role === 'MANAGER'">
+                    <span nz-icon nzType="project"></span> Kanban Board
+                </li>
             </ul>
 
             <div class="user-profile" nz-dropdown [nzDropdownMenu]="userMenu" nzTrigger="click">

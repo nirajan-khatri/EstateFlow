@@ -31,5 +31,11 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/manager-dashboard/manager-dashboard.component').then(m => m.ManagerDashboardComponent),
         canActivate: [authGuard, roleGuard],
         data: { expectedRole: 'MANAGER' }
+    },
+    {
+        path: 'kanban',
+        loadComponent: () => import('./pages/kanban-board/kanban-board.component').then(m => m.KanbanBoardComponent),
+        canActivate: [authGuard, roleGuard],
+        data: { expectedRole: 'MANAGER' }
     }
 ];
