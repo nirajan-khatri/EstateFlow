@@ -81,7 +81,7 @@ export class KanbanBoardComponent implements OnInit {
             this.updateSignalByStatus(event.container.id as IssueStatus, currentList);
 
             // Call API to update status
-            const issue = event.container.data[event.currentIndex];
+            const issue = currentList[event.currentIndex];
             const newStatus = event.container.id as IssueStatus;
 
             this.issueService.updateStatus(issue.id, newStatus).subscribe({
