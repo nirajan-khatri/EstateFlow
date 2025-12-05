@@ -1,50 +1,55 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
 .create-issue-container {
     display: flex;
     justify-content: center;
-    padding: 40px 24px;
-    background-color: #f0f2f5;
+    padding: $spacing-xxl $spacing-lg;
     min-height: 100%;
 }
 
 .form-wrapper {
     width: 100%;
     max-width: 700px;
+    padding: $spacing-xl;
+    border-radius: $border-radius-xl;
 }
 
 .page-header {
     text-align: center;
-    margin-bottom: 32px;
+    margin-bottom: $spacing-xl;
 
     h1 {
-        font-size: 28px;
-        font-weight: 600;
-        color: #001529;
-        margin-bottom: 8px;
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: $spacing-xs;
     }
 
     p {
-        color: #666;
-        font-size: 16px;
+        color: $text-color-secondary;
+        font-size: $font-size-lg;
     }
 }
 
-.issue-card {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    border-radius: 8px;
-
-    ::ng-deep .ant-card-body {
-        padding: 32px;
+.upload-container {
+    ::ng-deep .ant-upload {
+        width: 100%;
     }
+}
+
+.submit-btn {
+    height: 48px;
+    font-size: $font-size-lg;
+    font-weight: 600;
+    margin-top: $spacing-md;
 }
 
 @media (max-width: 576px) {
     .create-issue-container {
-        padding: 24px 16px;
+        padding: $spacing-md;
     }
 
-    .issue-card {
-        ::ng-deep .ant-card-body {
-            padding: 24px;
-        }
+    .form-wrapper {
+        padding: $spacing-lg;
     }
 }

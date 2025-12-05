@@ -1,44 +1,59 @@
 <div class="dashboard-container" *ngIf="stats">
-    <div class="dashboard-header"
-        style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-        <h2>Analytics Dashboard</h2>
-        <div class="dashboard-controls">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1 class="welcome-text">Welcome back, <span class="text-gradient">Manager</span></h1>
+            <p class="subtitle">Here's what's happening with your properties today.</p>
+        </div>
+        <div class="dashboard-controls glass-panel">
             <nz-range-picker [(ngModel)]="dateRange" (ngModelChange)="onDateChange($event)"
-                style="margin-right: 16px;"></nz-range-picker>
-            <button nz-button nzType="primary" (click)="exportToCSV()">Export CSV</button>
+                [nzBorderless]="true"></nz-range-picker>
+            <button nz-button nzType="primary" (click)="exportToCSV()">
+                <span nz-icon nzType="download"></span> Export CSV
+            </button>
         </div>
     </div>
 
-    <div nz-row [nzGutter]="16">
-        <div nz-col [nzSpan]="24">
-            <nz-card>
-                <nz-statistic [nzValue]="stats.totalIssues" [nzTitle]="'Total Issues'"></nz-statistic>
+    <!-- Stats Grid -->
+    <div nz-row [nzGutter]="[24, 24]" class="stats-grid">
+        <div nz-col [nzSpan]="6" [nzXs]="24" [nzSm]="12" [nzMd]="6">
+            <nz-card class="stat-card card-hover">
+                <div class="stat-icon primary">
+                    <span nz-icon nzType="file-protect" nzTheme="outline"></span>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Total Issues</span>
+                    <h3 class="stat-value">{{ stats.totalIssues }}</h3>
+                </div>
             </nz-card>
         </div>
+        <!-- Add more stat cards here if available in stats object -->
     </div>
 
-    <div nz-row [nzGutter]="16" class="charts-row">
-        <div nz-col [nzSpan]="12">
-            <nz-card nzTitle="Issues by Status">
+    <!-- Charts Section -->
+    <div nz-row [nzGutter]="[24, 24]" class="charts-row">
+        <div nz-col [nzSpan]="16" [nzXs]="24" [nzLg]="16">
+            <nz-card nzTitle="Issue Status Distribution" class="chart-card card-hover">
                 <div class="chart-container">
                     <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'">
                     </canvas>
                 </div>
             </nz-card>
         </div>
-        <div nz-col [nzSpan]="12">
-            <nz-card nzTitle="Issues by Priority">
-                <div class="chart-container">
-                    <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="'pie'">
+        <div nz-col [nzSpan]="8" [nzXs]="24" [nzLg]="8">
+            <nz-card nzTitle="Priority Breakdown" class="chart-card card-hover">
+                <div class="chart-container pie-chart">
+                    <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="'doughnut'">
                     </canvas>
                 </div>
             </nz-card>
         </div>
     </div>
 
-    <div nz-row [nzGutter]="16" class="recent-activity-row">
+    <!-- Recent Activity -->
+    <div nz-row [nzGutter]="[24, 24]" class="recent-activity-row">
         <div nz-col [nzSpan]="24">
-            <nz-card nzTitle="Recent Activity">
+            <nz-card nzTitle="Recent Activity" class="table-card card-hover">
                 <nz-table #basicTable [nzData]="stats.recentIssues" [nzShowPagination]="false">
                     <thead>
                         <tr>
@@ -52,14 +67,34 @@
                     </thead>
                     <tbody>
                         <tr *ngFor="let data of basicTable.data">
-                            <td>{{ data.title }}</td>
-                            <td>{{ data.reporter?.name || 'Unknown' }}</td>
-                            <td>{{ data.assignee?.name || 'Unassigned' }}</td>
+                            <td>
+                                <div class="issue-title-cell">
+                                    <span nz-icon nzType="file-text" nzTheme="outline"></span>
+                                    {{ data.title }}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="user-cell">
+                                    <nz-avatar nzSize="small" nzIcon="user"
+                                        [style.backgroundColor]="'#87d068'"></nz-avatar>
+                                    <span>{{ data.reporter?.name || 'Unknown' }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="user-cell">
+                                    <nz-avatar nzSize="small" nzIcon="user"
+                                        [style.backgroundColor]="data.assignee ? '#1890ff' : '#ccc'"></nz-avatar>
+                                    <span>{{ data.assignee?.name || 'Unassigned' }}</span>
+                                </div>
+                            </td>
                             <td>
                                 <nz-tag [nzColor]="getPriorityColor(data.priority)">{{ data.priority }}</nz-tag>
                             </td>
-                            <td>{{ data.status }}</td>
-                            <td>{{ data.createdAt | date:'short' }}</td>
+                            <td>
+                                <nz-badge [nzStatus]="data.status === 'RESOLVED' ? 'success' : 'processing'"
+                                    [nzText]="data.status"></nz-badge>
+                            </td>
+                            <td class="text-secondary">{{ data.createdAt | date:'MMM d, y, h:mm a' }}</td>
                         </tr>
                     </tbody>
                 </nz-table>

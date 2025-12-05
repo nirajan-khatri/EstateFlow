@@ -1,18 +1,117 @@
-.dashboard-container {}
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
 
-.charts-row {
-    margin-top: 24px;
+.dashboard-container {
+    padding-bottom: $spacing-xl;
 }
 
+.hero-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: $spacing-xl;
+    padding: $spacing-lg 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+    .welcome-text {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: $spacing-xs;
+        color: $text-color;
+    }
+
+    .subtitle {
+        color: $text-color-secondary;
+        font-size: $font-size-lg;
+        margin: 0;
+    }
+}
+
+.dashboard-controls {
+    display: flex;
+    gap: $spacing-md;
+    padding: $spacing-sm;
+    border-radius: $border-radius-lg;
+}
+
+.stat-card {
+    height: 100%;
+
+    ::ng-deep .ant-card-body {
+        display: flex;
+        align-items: center;
+        padding: $spacing-lg;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-right: $spacing-md;
+
+        &.primary {
+            background-color: rgba($primary-color, 0.1);
+            color: $primary-color;
+        }
+    }
+
+    .stat-info {
+        .stat-label {
+            color: $text-color-secondary;
+            font-size: $font-size-base;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.2;
+        }
+    }
+}
+
+.charts-row,
 .recent-activity-row {
-    margin-top: 24px;
+    margin-top: $spacing-xl;
 }
 
 .chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
     display: flex;
     justify-content: center;
+
+    &.pie-chart {
+        height: 250px;
+    }
+}
+
+.user-cell {
+    display: flex;
     align-items: center;
-    height: 300px;
+    gap: $spacing-sm;
+}
+
+.issue-title-cell {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-weight: 500;
+
+    span {
+        color: $text-color-secondary;
+    }
+}
+
+.text-secondary {
+    color: $text-color-secondary;
 }
 
 .loading-container {

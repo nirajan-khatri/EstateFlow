@@ -52,6 +52,17 @@ export class CreateIssueComponent {
   }
 
   beforeUpload = (file: NzUploadFile): boolean => {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/gif';
+    if (!isJpgOrPng) {
+      this.message.error('You can only upload JPG/PNG/GIF file!');
+      return false;
+    }
+    const isLt5M = file.size! / 1024 / 1024 < 5;
+    if (!isLt5M) {
+      this.message.error('Image must smaller than 5MB!');
+      return false;
+    }
+
     this.fileList = this.fileList.concat(file);
     return false; // Prevent automatic upload
   };
